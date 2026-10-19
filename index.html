@@ -150,7 +150,24 @@ button.pill{cursor:pointer}.pill .cap{width:20px;height:20px}
 .tw td{padding:.55rem .75rem;border-top:1px solid var(--line);vertical-align:top}
 .tw tr:nth-child(even) td{background:color-mix(in srgb,var(--ink) 3%,transparent)}
 .tw td:first-child{font-weight:700}
+.tw table:not(.w4) th:first-child,.tw table:not(.w4) td:first-child{min-width:9rem;width:34%}
+.tw th.n,.tw td.n{white-space:nowrap;width:1%;text-align:center}
 .tcap{font-size:.8rem;color:var(--mute);margin:.8rem 0 -.5rem}
+.admbar{display:flex;gap:.7rem;align-items:flex-start;margin:0 0 .9rem;padding:.75rem .9rem;border-radius:18px;border:1px solid color-mix(in srgb,var(--blue) 45%,var(--line));background:linear-gradient(135deg,color-mix(in srgb,var(--blue) 16%,var(--card)),color-mix(in srgb,var(--card) 90%,transparent));-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.admbar b{display:block;font-size:.95rem}.admbar small{display:block;color:var(--mute);font-size:.8rem;line-height:1.35;margin-top:.1rem}
+.admtag{flex:none;margin-top:.15rem;padding:.15rem .5rem;border-radius:99px;background:var(--blue);color:var(--onblue);font-size:.68rem;font-weight:800;letter-spacing:.08em}
+.pill.adm{color:var(--blue);border-color:var(--blue);font-weight:800;letter-spacing:.04em}
+.bigbtn{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;min-height:68px;margin-top:.7rem;font-size:1.05rem;text-align:center}
+.bigbtn small{font-weight:500;opacity:.8;font-size:.78rem}
+.gprev{margin-top:.7rem;padding:.7rem .85rem;border-radius:14px;border:1px dashed var(--blue);background:var(--blueBg)}
+.gprev p{margin:.15rem 0;font-size:.9rem}
+.el{display:block;font-size:.72rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--mute);margin-top:.65rem}
+textarea.edt{font-family:inherit;font-size:.95rem;min-height:84px;resize:vertical}
+.edopt{display:flex;gap:.55rem;align-items:center}.edopt input[type=radio]{width:22px;height:22px;min-height:0;flex:none;margin:0;accent-color:var(--blue)}
+.edpair{display:grid;grid-template-columns:1fr auto 1fr;gap:.4rem;align-items:center}
+.edbar{position:sticky;top:.4rem;z-index:6;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin:.5rem 0 .8rem;padding:.5rem .7rem;border-radius:16px;border:1px solid var(--line);background:color-mix(in srgb,var(--card) 86%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+.edbar #edstate{flex:1;min-width:8rem;font-size:.85rem;color:var(--mute);font-weight:600}
+.edq{margin:.7rem 0}.edq .edty{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--blue)}
 </style></head><body><div id="app"></div><nav id="nav"></nav>
 <script>
 /* ===== PLATZHALTER: hier später Impressum & Datenschutz eintragen ===== */
@@ -358,6 +375,102 @@ function merge(L,R){
  return M}
 const exk=x=>"e:"+x.f+"|"+x.d+"|"+(x.t||"");
 
+/* ===== Admin & globale Klassenarbeiten (Supabase-Tabelle global_materials) ===== */
+const ADMIN_EMAIL="studiq.lernapp@gmail.com",GK="studiq-global";
+let GL=[];try{GL=JSON.parse(localStorage.getItem(GK))||[]}catch(e){}if(!Array.isArray(GL))GL=[];
+/* Nur Anzeige-Steuerung. Die echte Absicherung passiert serverseitig (RLS + is_admin() in Supabase). */
+const isAdmin=()=>!!(au&&au.e&&String(au.e).trim().toLowerCase()===ADMIN_EMAIL);
+const gToEx=r=>{if(!r||!r.data||!r.data.id)return null;const d=r.data;return{...d,id:String(d.id),title:r.title||d.title||"",fach:r.subject||d.fach,kind:KINDS.some(k=>k[0]===d.kind)?d.kind:"test",q:Array.isArray(d.q)?d.q:[],t:Array.isArray(d.t)?d.t:[],g:1,gid:r.id,gt:r.updated_at||""}};
+async function loadGlobals(){const t=await tok();if(!t)return;
+ const j=await sbj("/rest/v1/global_materials?select=id,subject,title,data,updated_at&order=created_at.asc",{headers:H(t)});
+ if(!Array.isArray(j))return;
+ GL=j.map(gToEx).filter(Boolean);try{localStorage.setItem(GK,JSON.stringify(GL))}catch(e){}}
+const gerr=e=>e.st===404?"Tabelle global_materials nicht gefunden. Bitte das SQL-Skript im Supabase SQL Editor ausführen.":(e.st===401||e.st===403)?"Keine Berechtigung (RLS). Ist das Admin-Konto in app_admins eingetragen? SQL-Skript nach der Registrierung des Admin-Kontos erneut ausführen.":e.st===409?"Diese Klassenarbeit (ID) existiert bereits.":(e.message||"Unbekannter Fehler");
+const strip=x=>{const o=JSON.parse(JSON.stringify(x));delete o.g;delete o.gid;delete o.gt;delete o.mt;return o};
+function normEx(x){
+ if(!x||typeof x!=="object"||!x.id||!x.title||(!Array.isArray(x.q)&&!Array.isArray(x.t)&&!x.doc))throw new Error("Format ungültig: „id“, „title“ und mindestens q, t oder doc sind nötig.");
+ x=strip(x);x.id=String(x.id);
+ if(EXAMS.some(e=>e.id===x.id))throw new Error("Die ID „"+x.id+"“ gehört zu einer eingebauten Klausur. Bitte andere ID wählen.");
+ x.title=String(x.title);const q0=(x.q||[]).length,t0=(x.t||[]).length;
+ x.q=(x.q||[]).filter(r=>nq(r));x.t=(x.t||[]).filter(r=>Array.isArray(r)&&r.length>=3);
+ x.fach=FACH.includes(x.fach)?x.fach:"";x.kind=KINDS.some(k=>k[0]===x.kind)?x.kind:"test";
+ return{x,drop:q0-x.q.length+t0-x.t.length}}
+function gparse(txt,name){try{let o=JSON.parse(txt);o=Array.isArray(o)?o:[o];if(!o.length)throw new Error("Datei ist leer.");
+ const r=o.map(normEx);ui.gp={name,list:r.map(a=>a.x),drop:r.reduce((a,b)=>a+b.drop,0),fach:r[0].x.fach||(FACH.includes(st.set.fach)?st.set.fach:FACH[0])};ui.gmsg=""}
+ catch(e){ui.gp=null;ui.gmsg=e instanceof SyntaxError?"Die Datei ist kein gültiges JSON.":e.message}
+ render()}
+async function gpub(){const g=ui.gp;if(!g||!isAdmin()||ui.gbusy)return;ui.gbusy=1;ui.gmsg="";render();
+ try{const t=await tok();if(!t)throw new Error("Nicht angemeldet.");let n=0;
+  for(const x0 of g.list){const x={...x0,fach:g.fach||x0.fach},ex=GL.find(e=>e.id===x.id),body=JSON.stringify({subject:x.fach,title:x.title,data:x});
+   if(ex){const r=await sbj("/rest/v1/global_materials?id=eq."+ex.gid,{method:"PATCH",headers:{...H(t),Prefer:"return=representation"},body});if(!r||!r.length){const er=new Error("");er.st=403;throw er}}
+   else await sbj("/rest/v1/global_materials",{method:"POST",headers:{...H(t),Prefer:"return=minimal"},body});n++}
+  await loadGlobals();ui.gp=null;ui.gmsg="✓ "+n+" Klassenarbeit(en) veröffentlicht. Ab sofort für alle Nutzer sichtbar."
+ }catch(e){ui.gmsg="Fehler: "+gerr(e)}
+ ui.gbusy=0;render()}
+async function gdel(id){if(ui.gdc!==id){ui.gdc=id;render();return}ui.gdc="";const ex=GL.find(e=>e.gid===id);if(!ex||!isAdmin())return;
+ try{const t=await tok();const r=await sbj("/rest/v1/global_materials?id=eq."+id,{method:"DELETE",headers:{...H(t),Prefer:"return=representation"}});if(!r||!r.length){const er=new Error("");er.st=403;throw er}
+  await loadGlobals();ui.gmsg="✓ „"+ex.title+"“ gelöscht."}catch(e){ui.gmsg="Fehler: "+gerr(e)}render()}
+const canon=r=>{const n=nq(r);if(!n)return r;const t=n.t,q=n.q;
+ if(n.ty==="tf")return[t,q,n.a===0,n.w];if(n.ty==="fill")return[t,q,n.o,n.a,n.w,"fill"];if(n.ty==="match")return[t,q,n.o,null,n.w,"match"];return[t,q,n.o,n.a,n.w]};
+function gedit(id){const g=GL.find(e=>e.gid===id);if(!g||!isAdmin())return;const ex=strip(g);ex.q=ex.q.map(canon);
+ ui.ed={gid:id,ex,tab:"q",f:"",lim:30,dirty:false,msg:"",cd:null};st.view="adm";render()}
+async function edsave(){const d=ui.ed;if(!d||!isAdmin()||d.busy)return;const ex=JSON.parse(JSON.stringify(d.ex));
+ ex.t=ex.t.filter(r=>r&&String(r[1]).trim());ex.title=String(ex.title).trim();
+ const bad=[];ex.q.forEach((r,i)=>{if(!nq(r))bad.push(i+1)});
+ if(!ex.title){d.msg="Titel darf nicht leer sein.";render();return}
+ if(bad.length){d.msg="Ungültige Frage(n) Nr. "+bad.slice(0,8).join(", ")+" (Antwort oder Optionen prüfen).";render();return}
+ d.busy=1;d.msg="";render();
+ try{const t=await tok();const r=await sbj("/rest/v1/global_materials?id=eq."+d.gid,{method:"PATCH",headers:{...H(t),Prefer:"return=representation"},body:JSON.stringify({subject:ex.fach,title:ex.title,data:ex})});
+  if(!r||!r.length){const er=new Error("");er.st=403;throw er}
+  await loadGlobals();const g=GL.find(e=>e.gid===d.gid);if(g){const e2=strip(g);e2.q=e2.q.map(canon);d.ex=e2}d.dirty=false;d.msg="✓ Gespeichert und für alle veröffentlicht."
+ }catch(e){d.msg="Fehler: "+gerr(e)}
+ d.busy=0;render()}
+function edIn(el){const d=ui.ed;if(!d)return;const p=el.dataset.ed.split("."),ex=d.ex,v=el.value;
+ if(p[0]==="title")ex.title=v;else if(p[0]==="fach")ex.fach=v;
+ else{const r=(p[0]==="q"?ex.q:ex.t)[+p[1]];if(!r)return;const k=p[2];
+  if(k==="top")r[0]=v;else if(k==="txt"||k==="name")r[1]=v;else if(k==="def")r[2]=v;
+  else if(k==="o")r[2][+p[3]]=v;else if(k==="a")r[3]=+v;else if(k==="b")r[2]=v==="1";
+  else if(k==="f")r[3]=v.split("\n").map(s=>s.trim()).filter(Boolean);
+  else if(k==="p")r[2][+p[3]][+p[4]]=v;
+  else if(k==="ex")r[typeof r[2]==="boolean"?3:4]=v}
+ d.dirty=true;d.msg="";const s=$("#edstate");if(s)s.textContent="Ungespeicherte Änderungen"}
+const admBanner=()=>`<div class="admbar"><span class="admtag">ADMIN</span><div><b>Ich bin jetzt Admin Account</b><small>${E(au.e)} · Klassenarbeiten für alle veröffentlichen und bearbeiten unter „Optionen“.</small></div></div>`;
+function admCard(){const g=ui.gp,L=GL;
+ return`<div class="card grp"><h3>Admin · Klassenarbeiten für alle</h3>
+ <p class="mute">JSON-Datei wählen und veröffentlichen. Sie wird in der Cloud gespeichert und erscheint automatisch bei allen Nutzern im passenden Fach.</p>
+ <input type="file" id="gfile" accept=".json,application/json" hidden>
+ <button class="btn pri bigbtn" data-a="gpick">Datei auswählen<small>.json vom Gerät</small></button>
+ ${g?`<div class="gprev"><b>${E(g.name||"Datei")}</b>${g.list.map(x=>`<p>${E(x.title)}<br><small class="mute">${x.q.length} Fragen · ${x.t.length} Begriffe${GL.some(e=>e.id===x.id)?" · ersetzt vorhandene Version":""}</small></p>`).join("")}${g.drop?`<p class="mute">${g.drop} ungültige Einträge werden ausgelassen.</p>`:""}<span class="el">Fach</span><select id="gfach">${FACH.map(f=>`<option ${f===g.fach?"selected":""}>${E(f)}</option>`).join("")}</select></div>`:""}
+ <button class="btn bigbtn" style="margin-top:.7rem" data-a="gpub" ${g&&!ui.gbusy?"":"disabled"}>${ui.gbusy?"Wird veröffentlicht …":"Klassenarbeit für alle veröffentlichen"}</button>
+ ${ui.gmsg?`<div class="box merk" style="margin-top:.7rem"><b>Hinweis</b>${E(ui.gmsg)}</div>`:""}
+ ${ui.gerr?`<p class="mute" style="margin-top:.6rem">Laden der globalen Arbeiten: ${E(ui.gerr)}</p>`:""}
+ <div style="margin-top:.9rem"><b>Veröffentlicht (${L.length})</b>${L.length?L.map(e=>`<div class="hist"><span>${E(e.title)}<br><small class="mute">${E(e.fach||"")} · ${e.q.length} Fragen · ${e.t.length} Begriffe</small></span><span style="display:flex;gap:.3rem"><button class="chip" data-a="gedit" data-v="${E(e.gid)}">Bearbeiten</button><button class="chip" data-a="gdel" data-v="${E(e.gid)}">${ui.gdc===e.gid?"Wirklich löschen?":"Löschen"}</button></span></div>`).join(""):`<p class="mute">Noch nichts veröffentlicht.</p>`}</div></div>`}
+function vAdm(){const d=ui.ed;if(!d||!isAdmin())return vHome();
+ const ex=d.ex,f=d.f.toLowerCase(),isq=d.tab==="q",arr=isq?ex.q:ex.t,idx=[];
+ arr.forEach((r,i)=>{if(!f||JSON.stringify(r).toLowerCase().includes(f))idx.push(i)});
+ const inp=(k,val,c)=>`<input data-ed="${k}" value="${E(val)}" ${c||""}>`,ta=(k,val,c)=>`<textarea class="edt" data-ed="${k}" ${c||""}>${E(val)}</textarea>`;
+ const qh=i=>{const r=ex.q[i],tf=typeof r[2]==="boolean",ty=tf?"tf":r[5]==="fill"?"fill":r[5]==="match"?"match":"mc",p="q."+i+".";let b="";
+  if(ty==="mc")b=`<span class="el">Antwortoptionen (Punkt = richtig)</span>`+r[2].map((o,j)=>`<div class="edopt"><input type="radio" name="r${i}" value="${j}" data-ed="${p}a" ${r[3]===j?"checked":""}>${inp(p+"o."+j,o)}</div>`).join("");
+  else if(ty==="tf")b=`<span class="el">Richtige Antwort</span><select data-ed="${p}b"><option value="1" ${r[2]?"selected":""}>Richtig</option><option value="0" ${r[2]?"":"selected"}>Falsch</option></select>`;
+  else if(ty==="fill")b=`<span class="el">Akzeptierte Antworten (eine pro Zeile)</span>${ta(p+"f",(r[3]||[]).join("\n"),'style="min-height:56px"')}`;
+  else b=`<span class="el">Zuordnungen</span>`+r[2].map((a,j)=>`<div class="edpair">${inp(p+"p."+j+".0",a[0])}<span>→</span>${inp(p+"p."+j+".1",a[1])}</div>`).join("");
+  const key="q."+i;
+  return`<div class="card edq"><div style="display:flex;justify-content:space-between;gap:.5rem"><span class="edty">Nr. ${i+1} · ${{mc:"Multiple Choice",tf:"Richtig/Falsch",fill:"Lückentext",match:"Zuordnung"}[ty]}</span><button class="chip" data-a="edq" data-v="${key}">${d.cd===key?"Wirklich löschen?":"Löschen"}</button></div>
+  <span class="el">Thema</span>${inp(p+"top",r[0])}<span class="el">Frage</span>${ta(p+"txt",r[1])}${b}<span class="el">Erklärung</span>${ta(p+"ex",r[tf?3:4]||"",'style="min-height:56px"')}</div>`};
+ const th=i=>{const r=ex.t[i],p="t."+i+".",key="t."+i;
+  return`<div class="card edq"><div style="display:flex;justify-content:space-between;gap:.5rem"><span class="edty">Begriff ${i+1}</span><button class="chip" data-a="edq" data-v="${key}">${d.cd===key?"Wirklich löschen?":"Löschen"}</button></div>
+  <span class="el">Thema</span>${inp(p+"top",r[0])}<span class="el">Begriff</span>${inp(p+"name",r[1])}<span class="el">Definition</span>${ta(p+"def",r[2])}</div>`};
+ return`<h1 style="margin:0">Bearbeiten</h1><p class="mute" style="margin:.2rem 0">${E(ex.title)}</p>
+ <div class="edbar"><span id="edstate">${d.busy?"Speichere …":d.dirty?"Ungespeicherte Änderungen":"Alles gespeichert"}</span><button class="btn sm" data-a="edback">${d.cb?"Verwerfen?":"Zurück"}</button><button class="btn sm pri" data-a="edsave" ${d.busy?"disabled":""}>Speichern</button></div>
+ ${d.msg?`<div class="box merk"><b>Hinweis</b>${E(d.msg)}</div>`:""}
+ <div class="card"><span class="el" style="margin-top:0">Titel</span>${inp("title",ex.title)}<span class="el">Fach</span><select data-ed="fach">${FACH.map(x=>`<option ${x===ex.fach?"selected":""}>${E(x)}</option>`).join("")}</select>
+ <p class="mute" style="margin:.6rem 0 0;font-size:.8rem">Hinweis: Wird der Fragetext geändert, gilt die Frage für Schüler als neue Frage (Lernfortschritt dieser Frage startet neu). Rechtschreibung in Erklärung, Optionen und Begriffen bleibt ohne Folgen.</p></div>
+ ${seg([["q","Fragen ("+ex.q.length+")"],["t","Begriffe ("+ex.t.length+")"]],v=>v===d.tab,"edtab",1)}
+ <div class="in" style="margin:.7rem 0"><input id="edf" placeholder="Suchen …" value="${E(d.f)}"></div>
+ ${idx.slice(0,d.lim).map(i=>isq?qh(i):th(i)).join("")||'<p class="mute">Keine Treffer.</p>'}
+ ${idx.length>d.lim?`<button class="btn" style="width:100%" data-a="edmore">Weitere anzeigen (${idx.length-d.lim})</button>`:""}
+ ${isq?"":`<button class="btn" style="width:100%;margin-top:.6rem" data-a="edaddt">+ Begriff hinzufügen</button>`}`}
+
 /* ===== Speichern & Synchronisieren ===== */
 const ui={tq:"",tf:"alle",tt:"",open:{},confirm:0,modal:"",msg:"",qmsg:"",onlyWrong:false,tmode:"learn",det:{},sync:"",boot:0,lo:0};
 const setH=()=>JSON.stringify(SYNCSET.map(k=>st.set[k]));
@@ -368,12 +481,13 @@ const track=()=>{lastSetH=setH();lastJ=jx()};
 const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
 const push=()=>{clearTimeout(pt);pt=setTimeout(sync,1500)};
 const save=()=>{const h=setH();if(h!==lastSetH){lastSetH=h;st.set_t=Date.now()}persist();const j=jx();if(j===lastJ)return;lastJ=j;st.ts=Date.now();dirty=true;persist();if(au)push()};
-const sig=()=>JSON.stringify([st.days,st.xp,st.custom.map(e=>e.id+":"+e.mt),st.ov,st.exd.length,Object.keys(st.qs).length,Object.keys(st.tm).length,SYNCSET.map(k=>st.set[k])]);
+const sig=()=>JSON.stringify([st.days,st.xp,st.custom.map(e=>e.id+":"+e.mt),st.ov,st.exd.length,Object.keys(st.qs).length,Object.keys(st.tm).length,SYNCSET.map(k=>st.set[k]),GL.map(e=>e.id+":"+e.gt)]);
 /* Ablauf: 1) Cloud-Stand laden  2) mit lokalem Stand zusammenführen  3) nur wenn nötig zurückschreiben
    Das Zurückschreiben ist an den zuletzt gelesenen updated_at-Wert geknüpft. Hat ein anderes Gerät in der Zwischenzeit gespeichert,
    wird neu geladen, erneut zusammengeführt und wiederholt. So kann kein Gerät ein anderes überschreiben. */
 async function syncCore(){
  const t=await tok();if(!t)return;
+ try{await loadGlobals();ui.gerr=""}catch(e){ui.gerr=gerr(e)}
  for(let n=0;n<4;n++){
   const j=await sbj("/rest/v1/user_state?select=data,nick,updated_at&user_id=eq."+au.id,{headers:H(t)}),r=j&&j[0];
   if(r&&r.data)st=merge(st,r.data);
@@ -405,7 +519,7 @@ setInterval(()=>{if(au&&!document.hidden&&Date.now()-(ui.syncAt||0)>60000)sync()
 const $=s=>document.querySelector(s),E=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const hh=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return(h>>>0).toString(36)};
 const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-const exams=()=>[...EXAMS,...st.custom].map(e=>st.ov&&st.ov[e.id]?{...e,...st.ov[e.id]}:e);
+const exams=()=>{const gi=new Set(GL.map(e=>e.id));return[...EXAMS,...GL.filter(e=>!EXAMS.some(b=>b.id===e.id)),...st.custom.filter(e=>!gi.has(e.id))].map(e=>st.ov&&st.ov[e.id]?{...e,...st.ov[e.id]}:e)};
 /* Das Fach der Startseite ist der oberste Filter der ganzen App */
 const FX=()=>exams().filter(e=>e.fach===st.set.fach);
 const cur=()=>{const l=FX();return l.find(e=>e.id===st.set.exam)||l[0]||null};
@@ -469,23 +583,25 @@ function nav(){const v=st.view;if(v==="auth"){$("#nav").innerHTML="";return}
  $("#nav").innerHTML=TABS.map(([k,l])=>{const off=k==="voc"&&!isLang();return`<button class="${v===k?"on":""}" data-a="go" data-v="${k}" ${off?'disabled aria-disabled="true" title="Nur bei Sprachfächern (Spanisch, Englisch)"':""}><svg viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg><span>${l}</span></button>`}).join("")}
 const lockBar=()=>`<div class="lock"><span>Fach:</span> <b>${E(st.set.fach)}</b> <button data-a="go" data-v="home">auf der Startseite ändern</button></div>`;
 const examChips=()=>{const l=FX(),c=cur();return l.length>1&&c?`<h2>Klausur</h2>${chips(l.map(e=>[e.id,e.title]),v=>v===c.id,"exam")}`:""};
-const emptyFach=()=>`<div class="card">Für <b>${E(st.set.fach)}</b> gibt es noch keine Inhalte. Importiere unter „Optionen“ eine Klausur oder wähle auf der Startseite ein anderes Fach.</div><div class="row"><button class="btn" data-a="go" data-v="home">Zur Startseite</button><button class="btn" data-a="go" data-v="set">Zu den Optionen</button></div>`;
+const emptyFach=()=>`<div class="card">Für <b>${E(st.set.fach)}</b> gibt es noch keine Inhalte. Neue Klassenarbeiten erscheinen hier automatisch, sobald sie veröffentlicht wurden. Du kannst auf der Startseite ein anderes Fach wählen.</div><div class="row"><button class="btn" data-a="go" data-v="home">Zur Startseite</button></div>`;
 function syncPill(sh){const u=ui.sync,d=sh?' data-s="1"':"";
  if(!au)return sbOn()?`<button class="pill syncpill" data-a="tologin"${d}><i></i>${sh?"Lokal":"Nur lokal · Anmelden"}</button>`:`<span class="pill syncpill"${d}><i></i>Nur lokal</span>`;
  return`<button class="pill syncpill ${u||"ok"}" data-a="syncnow"${d}><i></i>${u==="busy"?(sh?"Sync …":"Synchronisiere …"):u==="err"?(sh?"Offline":"Offline · wird nachgeholt"):(sh?"Sync ok":"Synchronisiert")}</button>`}
-const topbar=()=>`<div class="top"><span class="pill">${cap(true)}<b>${streak()}</b> Tage</span><span class="pill"><b>${st.xp||0}</b> XP</span>${syncPill(1)}<button class="pill fachpill" data-a="go" data-v="home">${E(st.set.fach)}</button></div>`;
+const topbar=()=>`<div class="top"><span class="pill">${cap(true)}<b>${streak()}</b> Tage</span><span class="pill"><b>${st.xp||0}</b> XP</span>${isAdmin()?'<span class="pill adm">ADMIN</span>':""}${syncPill(1)}<button class="pill fachpill" data-a="go" data-v="home">${E(st.set.fach)}</button></div>`;
 
 function legalFoot(){return`<div class="foot"><button data-a="modal" data-v="impressum">Impressum</button> · <button data-a="modal" data-v="datenschutz">Datenschutz</button></div>`}
 let lastView="";
 function render(){
  if(sbOn()&&!au&&!st.guest&&st.view!=="auth")st.view="auth";
  if(st.view==="voc"&&!isLang())st.view="home";
+ if(st.view==="adm"&&(!isAdmin()||!ui.ed))st.view="home";
  applyLook();nav();const v=st.view,ch=v!==lastView;lastView=v;
  const app=$("#app");app.dataset.enter=ch?"1":"0";
  let h;
  if(ui.boot)h=`<div class="boot"><div><div class="spin"></div><p>Lernstand wird geladen …</p></div></div>`;
- else{h=({home:vHome,quiz:vQuiz,terms:vTerms,voc:vVoc,info:vInfo,set:vSet,auth:vAuth}[v]||vHome)();
+ else{h=({home:vHome,quiz:vQuiz,terms:vTerms,voc:vVoc,info:vInfo,set:vSet,auth:vAuth,adm:vAdm}[v]||vHome)();
   if(v!=="home"&&v!=="auth"&&v!=="set")h=topbar()+h;
+  if(isAdmin()&&v!=="auth")h=admBanner()+h;
   if(v!=="set")h+=legalFoot();
   if(ui.assign)h+=assignModal();
   if(ui.modal)h+=`<div class="modal" data-a="close"><div data-a="keep"><h2 style="margin-top:0">${ui.modal==="impressum"?"Impressum":"Datenschutz"}</h2><p style="white-space:pre-wrap">${E(LEGAL[ui.modal])}</p><button class="btn pri" data-a="close">Schließen</button></div></div>`}
@@ -500,7 +616,7 @@ function assignModal(){const e=exams().find(x=>x.id===ui.assign);if(!e)return"";
 /* ===== Start ===== */
 function fachPanel(){const f=st.set.fach,list=exams().filter(e=>e.fach===f),lang=LANG.includes(f);
  return`<h2 class="fh" style="margin-top:.4rem">${E(f)}</h2>`+KINDS.filter(k=>k[0]!=="vokabeln"||lang||list.some(e=>e.kind==="vokabeln")).map(([k,l])=>{const xs=list.filter(e=>(e.kind||"test")===k);
-  return`<h2>${l}</h2>`+(xs.length?xs.map(e=>{const nq_=(e.q||[]).length,nt=(e.t||[]).length;return`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem"><b>${E(e.title)}</b><button class="chip" data-a="asg" data-v="${E(e.id)}" aria-label="Zuordnen">⋯</button></div><p class="mute">${nq_} Fragen · ${nt} Begriffe</p><div class="btns">${nq_?`<button class="btn pri" data-a="open" data-v="quiz|${E(e.id)}">Quiz</button>`:""}${nt&&lang?`<button class="btn pri" data-a="open" data-v="voc|${E(e.id)}">Vokabeln</button>`:""}${nt?`<button class="btn" data-a="open" data-v="terms|${E(e.id)}">Begriffe</button>`:""}<button class="btn" data-a="open" data-v="info|${E(e.id)}">Infos</button></div></div>`}).join(""):`<p class="mute">Noch keine Inhalte</p>`)}).join("")}
+  return`<h2>${l}</h2>`+(xs.length?xs.map(e=>{const nq_=(e.q||[]).length,nt=(e.t||[]).length;return`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem"><b>${E(e.title)}</b>${e.g?"":`<button class="chip" data-a="asg" data-v="${E(e.id)}" aria-label="Zuordnen">⋯</button>`}</div><p class="mute">${nq_} Fragen · ${nt} Begriffe</p><div class="btns">${nq_?`<button class="btn pri" data-a="open" data-v="quiz|${E(e.id)}">Quiz</button>`:""}${nt&&lang?`<button class="btn pri" data-a="open" data-v="voc|${E(e.id)}">Vokabeln</button>`:""}${nt?`<button class="btn" data-a="open" data-v="terms|${E(e.id)}">Begriffe</button>`:""}<button class="btn" data-a="open" data-v="info|${E(e.id)}">Infos</button>${isAdmin()&&e.g?`<button class="btn" data-a="gedit" data-v="${E(e.gid)}">Bearbeiten</button>`:""}</div></div>`}).join(""):`<p class="mute">Noch keine Inhalte</p>`)}).join("")}
 function vHome(){const s=st.set,run=st.run&&!st.run.done?st.run:null,ts=(st.exd||[]).filter(x=>dleft(x.d)>=0).sort((a,b)=>a.d<b.d?-1:1),all=Object.values(st.qs),r=all.reduce((a,x)=>a+x.r,0),w=all.reduce((a,x)=>a+x.w,0),wk={},
  days=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-6+i);return[ld(d),["So","Mo","Di","Mi","Do","Fr","Sa"][d.getDay()]]});
  for(const[k,v]of Object.entries(st.qs)){const e=exams().find(e=>k.startsWith(e.id+":"));if(e&&e.fach&&v.l===0)wk[e.fach]=(wk[e.fach]||0)+1}
@@ -649,7 +765,7 @@ function rb(b,id){if(!b||typeof b!=="object")return"";
  if(b.p!=null)return`<p>${IL(b.p)}</p>`;
  if(Array.isArray(b.ul))return`<ul>${b.ul.map(x=>`<li>${IL(x)}</li>`).join("")}</ul>`;
  if(Array.isArray(b.ol))return`<ol>${b.ol.map(x=>`<li>${IL(x)}</li>`).join("")}</ol>`;
- if(b.table&&Array.isArray(b.table.rows)){const hd=Array.isArray(b.table.head)?b.table.head:[];const cols=Math.max(hd.length,...b.table.rows.map(r=>Array.isArray(r)?r.length:1));return(b.cap?`<div class="tcap">${IL(b.cap)}</div>`:"")+`<div class="tw"><table class="${cols>=4?"w4":""}">${hd.some(Boolean)?`<thead><tr>${hd.map(c=>`<th>${IL(c)}</th>`).join("")}</tr></thead>`:""}<tbody>${b.table.rows.map(r=>`<tr>${(Array.isArray(r)?r:[r]).map(c=>`<td>${IL(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`}
+ if(b.table&&Array.isArray(b.table.rows)){const hd=Array.isArray(b.table.head)?b.table.head:[];const cols=Math.max(hd.length,...b.table.rows.map(r=>Array.isArray(r)?r.length:1));const nc=[];for(let ci=0;ci<cols;ci++)nc[ci]=ci>0&&b.table.rows.length>0&&b.table.rows.every(r=>Array.isArray(r)&&/^\d+$/.test(String(r[ci]??"")));return(b.cap?`<div class="tcap">${IL(b.cap)}</div>`:"")+`<div class="tw"><table class="${cols>=4?"w4":""}">${hd.some(Boolean)?`<thead><tr>${hd.map((c,ci)=>`<th${nc[ci]?' class="n"':""}>${IL(c)}</th>`).join("")}</tr></thead>`:""}<tbody>${b.table.rows.map(r=>`<tr>${(Array.isArray(r)?r:[r]).map((c,ci)=>`<td${nc[ci]?' class="n"':""}>${IL(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`}
  if(b.merk!=null)return`<div class="box merk"><b>Merke</b>${IL(b.merk)}</div>`;
  if(b.falle!=null)return`<div class="box falle"><b>Typischer Fehler</b>${IL(b.falle)}</div>`;return""}
 function docOf(e){const T=e.t||[],Q=e.q||[],tp=topics(e),own=Array.isArray(e.doc)?e.doc:typeof e.doc==="string"?mdLite(e.doc):DOCS[e.id]||[],out=[];
@@ -691,10 +807,8 @@ function vSet(){const s=st.set,det=(k,t,body)=>`<details class="card grp" data-k
   ${tg("haptic","Vibration","Rückmeldung am Handy")}
   ${tg("remind","Streak-Erinnerung","Hinweis auf der Startseite, wenn dein Streak heute endet")}</div>
  ${det("exd","Klassenarbeiten-Termine",`<div class="sr col"><div class="row"><select id="xf" style="margin:0">${FACH.map(f=>`<option ${f===s.fach?"selected":""}>${f}</option>`).join("")}</select><input type="date" id="xd" style="margin:0"><input id="xt" placeholder="Titel (optional)" style="margin:0"></div><button class="btn sm" style="margin-top:.6rem" data-a="addexd">Termin hinzufügen</button></div>${(st.exd||[]).map((x,i)=>`<div class="hist"><span>${E(x.f)} · ${E(x.d)}${x.t?" · "+E(x.t):""}</span><button class="chip" data-a="delexd" data-v="${i}">Löschen</button></div>`).join("")}`)}
- ${det("imp","Klausur hinzufügen",`<p class="mute">JSON einfügen (die Vorlage zeigt alle Fragetypen und das Feld „doc“ für den Infos-Reiter) oder Datei wählen. Danach legst du über ⋯ Fach und Rubrik fest.</p><textarea id="imp" placeholder='{"id":"...","title":"...","q":[],"t":[]}'></textarea>
-  <div class="row" style="margin-top:.5rem"><button class="btn" data-a="tpl">Vorlage einfügen</button><button class="btn pri" data-a="import">Klausur importieren</button></div><input type="file" id="file" accept=".json,application/json" style="margin-top:.6rem">
-  ${ui.msg?`<div class="box merk"><b>Hinweis</b>${E(ui.msg)}</div>`:""}
-  <div style="margin-top:.8rem"><b>Deine Klausuren</b>${exams().map(e=>`<div class="hist"><span>${E(e.title)}<br><small class="mute">${E(e.fach||"")}</small></span>${st.custom.some(c=>c.id===e.id)?`<span style="display:flex;gap:.3rem"><button class="chip" data-a="asg" data-v="${E(e.id)}" aria-label="Zuordnen">⋯</button><button class="chip" data-a="delx" data-v="${E(e.id)}">Löschen</button></span>`:`<button class="chip" data-a="asg" data-v="${E(e.id)}" aria-label="Zuordnen">⋯</button>`}</div>`).join("")}</div>`)}
+ ${isAdmin()?admCard():""}
+ ${st.custom.length?det("old","Eigene Klausuren (alt)",`<p class="mute">Früher selbst importierte Klausuren. Neue Klassenarbeiten kommen automatisch von der Lehrkraft/dem Admin.</p>${st.custom.map(e=>`<div class="hist"><span>${E(e.title)}<br><small class="mute">${E(e.fach||"")}</small></span><button class="chip" data-a="delx" data-v="${E(e.id)}">Löschen</button></div>`).join("")}`):""}
  ${det("dat","Daten",`<div class="sr col"><b style="font-weight:600;font-size:.95rem">Lernstand sichern</b><textarea id="bak" class="in" placeholder="Hier erscheint die Sicherung. Zum Wiederherstellen hier einfügen."></textarea><div class="row" style="margin-top:.5rem"><button class="btn" data-a="bexp">Sicherung erzeugen</button><button class="btn" data-a="bimp">Wiederherstellen</button></div></div>
   <div class="sr col"><button class="btn ${ui.confirm?"danger":""}" data-a="reset">${ui.confirm?"Wirklich alles löschen? Nochmal tippen":"Lernfortschritt löschen"}</button></div>`)}
  ${ui.msg&&!ui.det.imp?`<div class="box merk"><b>Hinweis</b>${E(ui.msg)}</div>`:""}
@@ -726,6 +840,16 @@ async function doAuth(){const g=ui.am==="reg",e=$("#ae").value.trim(),p=$("#ap")
 /* ===== Aktionen ===== */
 function act(a,v){const s=st.set;
  if(a==="keep")return;
+ if(a==="gpick"){const f=$("#gfile");f&&f.click();return}
+ if(a==="gpub"){gpub();return}
+ if(a==="gdel"){gdel(v);return}
+ if(a==="gedit"){gedit(v);return}
+ if(a==="edback"){const d=ui.ed;if(d&&d.dirty&&!d.cb){d.cb=1;render();return}ui.ed=null;st.view="set";render();return}
+ if(a==="edsave"){edsave();return}
+ if(a==="edtab"){const d=ui.ed;d.tab=v;d.f="";d.lim=30;d.cd=null;render();return}
+ if(a==="edmore"){ui.ed.lim+=30;render();return}
+ if(a==="edaddt"){const d=ui.ed;d.f="";d.tab="t";d.ex.t.push(["Allgemein","",""]);d.lim=Math.max(d.lim,d.ex.t.length);d.dirty=true;render();return}
+ if(a==="edq"){const d=ui.ed;if(d.cd!==v){d.cd=v;render();return}d.cd=null;const[w,i]=v.split(".");(w==="q"?d.ex.q:d.ex.t).splice(+i,1);d.dirty=true;render();return}
  if(a==="jump"){const el=document.getElementById(v);if(el)el.scrollIntoView({behavior:st.set.anim===false?"auto":"smooth",block:"start"});return}
  if(a==="amode"){ui.ae=$("#ae")?$("#ae").value:"";ui.am=v;ui.amsg="";render();return}
  if(a==="auth"){doAuth();return}
@@ -733,7 +857,7 @@ function act(a,v){const s=st.set;
  if(a==="tologin"){st.guest=false;st.view="auth";render();return}
  if(a==="syncnow"){sync().then(()=>render());return}
  if(a==="logout"){if(!ui.lo&&dirty&&ui.sync==="err"){ui.lo=1;render();return}
-  Promise.race([sync(),new Promise(r=>setTimeout(r,4000))]).finally(()=>{au=null;try{localStorage.removeItem(AK);localStorage.removeItem(KEY)}catch(e){}location.reload()});return}
+  Promise.race([sync(),new Promise(r=>setTimeout(r,4000))]).finally(()=>{au=null;try{localStorage.removeItem(AK);localStorage.removeItem(KEY);localStorage.removeItem(GK)}catch(e){}location.reload()});return}
  if(a==="close"){ui.modal=""}
  else if(a==="modal"){ui.modal=v}
  else if(a==="go"){st.view=v;ui.confirm=0;ui.lo=0;ui.msg="";ui.qmsg=""}
@@ -798,8 +922,8 @@ document.addEventListener("keydown",e=>{
  const run=st.view==="voc"?vr:st.view==="terms"&&ui.tmode==="quiz"?tr:null,k=st.view==="voc"?"v":"t";
  if(e.key==="Enter"&&!e.shiftKey&&run&&!run.done&&!e.isComposing&&e.target.id!=="ts"){e.preventDefault();act(k+(run.fb?"next":"check"));return}
  if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("term")){e.preventDefault();act("tt2",e.target.dataset.v)}});
-document.addEventListener("input",e=>{if(e.target.id==="nick"){st.set.nick=e.target.value.slice(0,20);save();return}if(e.target.id==="ts"){ui.tq=e.target.value;const p=e.target.selectionStart;render();const n=$("#ts");n.focus();n.setSelectionRange(p,p)}});
-document.addEventListener("change",e=>{if(e.target.id==="file"&&e.target.files[0]){const f=new FileReader();f.onload=()=>imp(f.result);f.readAsText(e.target.files[0])}});
+document.addEventListener("input",e=>{if(e.target.dataset&&e.target.dataset.ed){edIn(e.target);return}if(e.target.id==="edf"&&ui.ed){ui.ed.f=e.target.value;ui.ed.lim=30;const p=e.target.selectionStart;render();const n=$("#edf");n.focus();n.setSelectionRange(p,p);return}if(e.target.id==="nick"){st.set.nick=e.target.value.slice(0,20);save();return}if(e.target.id==="ts"){ui.tq=e.target.value;const p=e.target.selectionStart;render();const n=$("#ts");n.focus();n.setSelectionRange(p,p)}});
+document.addEventListener("change",e=>{if(e.target.id==="gfile"&&e.target.files[0]){const fl=e.target.files[0],f=new FileReader();f.onload=()=>gparse(f.result,fl.name);f.readAsText(fl);e.target.value="";return}if(e.target.id==="gfach"&&ui.gp){ui.gp.fach=e.target.value;return}if(e.target.id==="file"&&e.target.files[0]){const f=new FileReader();f.onload=()=>imp(f.result);f.readAsText(e.target.files[0])}});
 document.addEventListener("toggle",e=>{const d=e.target;if(d&&d.dataset&&d.dataset.k)ui.det[d.dataset.k]=d.open},true);
 
 /* ===== Start ===== */
