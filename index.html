@@ -567,13 +567,29 @@ function toast(m){const d=document.createElement("div");d.className="toast";d.te
 function pickVoice(g,pref){let vs=[];try{vs=window.speechSynthesis?speechSynthesis.getVoices():[]}catch(e){}
  const lg=v=>String(v.lang||"").replace("_","-").toLowerCase(),ok=vs.filter(v=>lg(v).split("-")[0]===g);
  for(const p of pref){const v=ok.find(v=>lg(v)===p.toLowerCase());if(v)return v}return ok[0]||null}
-let ttsA=null;
-function gtts(txt,g){const a=new Audio("https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl="+g+"&q="+encodeURIComponent(txt.slice(0,200)));
- a.referrerPolicy="no-referrer";ttsA=a;const bad=()=>toast("Aussprache ist auf diesem Gerät gerade nicht verfügbar.");a.onerror=bad;const p=a.play();if(p&&p.catch)p.catch(bad)}
+let ttsA=null,_sil=null,_ac=null,_silT=0;
+const IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+function silentURL(){const n=8000,b=new Uint8Array(44+n),d=new DataView(b.buffer),w=(o,t)=>{for(let k=0;k<t.length;k++)b[o+k]=t.charCodeAt(k)};
+ w(0,"RIFF");d.setUint32(4,36+n,true);w(8,"WAVEfmt ");d.setUint32(16,16,true);d.setUint16(20,1,true);d.setUint16(22,1,true);d.setUint32(24,8000,true);d.setUint32(28,8000,true);d.setUint16(32,1,true);d.setUint16(34,8,true);w(36,"data");d.setUint32(40,n,true);b.fill(128,44);
+ return URL.createObjectURL(new Blob([b],{type:"audio/wav"}))}
+/* Muss synchron im Klick laufen: Seite als Medien-Wiedergabe markieren, damit der Stumm-Schalter die Ausgabe nicht blockiert */
+function unlockAudio(){
+ try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
+ try{const AC=window.AudioContext||window.webkitAudioContext;if(AC){if(!_ac)_ac=new AC();if(_ac.state!=="running")_ac.resume();const b=_ac.createBufferSource();b.buffer=_ac.createBuffer(1,1,22050);b.connect(_ac.destination);b.start(0)}}catch(e){}
+ try{if(!_sil){_sil=new Audio(silentURL());_sil.loop=true;_sil.setAttribute("playsinline","")}
+  const p=_sil.play();if(p&&p.catch)p.catch(()=>{});clearTimeout(_silT);_silT=setTimeout(stopSil,20000)}catch(e){}}
+function stopSil(){clearTimeout(_silT);try{_sil&&_sil.pause()}catch(e){}}
+function gtts(txt,g,fb){const a=new Audio("https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl="+g+"&q="+encodeURIComponent(txt.slice(0,200)));
+ a.referrerPolicy="no-referrer";ttsA=a;let done=0;const bad=()=>{if(done)return;done=1;if(fb)fb();else{stopSil();toast("Aussprache ist auf diesem Gerät gerade nicht verfügbar.")}};
+ a.onerror=bad;a.onended=stopSil;const p=a.play();if(p&&p.catch)p.catch(bad)}
+function nat(txt,L,v){try{const u=new SpeechSynthesisUtterance(txt);u.voice=v;u.lang=v.lang;u.rate=.9;u.volume=1;u.onend=stopSil;u.onerror=ev=>{if(ev.error!=="canceled"&&ev.error!=="interrupted")gtts(txt,L.g);else stopSil()};speechSynthesis.speak(u);return true}catch(e){return false}}
 function say(txt){const L=TTSL[st.set.fach];txt=String(txt||"").replace(/\([^)]*\)/g," ").replace(/\s+/g," ").trim();if(!L||!txt)return;
+ unlockAudio();
  try{speechSynthesis.cancel()}catch(e){}if(ttsA){try{ttsA.pause()}catch(e){}ttsA=null}
  const v=pickVoice(L.g,L.pref);
- if(v){try{const u=new SpeechSynthesisUtterance(txt);u.voice=v;u.lang=v.lang;u.rate=.9;u.onerror=ev=>{if(ev.error!=="canceled"&&ev.error!=="interrupted")gtts(txt,L.g)};speechSynthesis.speak(u);return}catch(e){}}
+ /* iOS: <audio> läuft sicher als Medien-Kanal (ignoriert den Stumm-Schalter); Systemstimme nur als Rückfall */
+ if(IOS){gtts(txt,L.g,v?()=>{nat(txt,L,v)||gtts(txt,L.g)}:null);return}
+ if(v&&nat(txt,L,v))return;
  gtts(txt,L.g)}
 
 /* ===== Admin-Dashboard ===== */
@@ -946,7 +962,7 @@ function runT(k){const o=k==="v"?vr:tr,it=o.q[o.i],f=o.fb,voc=k==="v",showN=voc?
  const msg=f?["Richtig!",long?"Teilweise richtig":"Fast richtig, kleiner Fehler","Leider falsch"][f.j]:lab;
  const q=voc?E(pr):long?`Was ist „${E(pr)}“?`:E(pr);
  return`<div class="vbar ${f?["g","o","r"][f.j]:""}">${msg}</div>
- <div class="tag">${E(it.t)} · ${o.i+1}/${o.q.length}</div><div class="bar"><i style="width:${100*o.i/o.q.length}%"></i></div><div class="q">${q}</div>${voc&&TTSL[st.set.fach]&&(o.dir==="es-de"||f)?`<div class="spkrow">${spkBtn(o.dir==="es-de"?it.n:it.d)}<small>Aussprache anhören</small></div>`:""}
+ <div class="tag">${E(it.t)} · ${o.i+1}/${o.q.length}</div><div class="bar"><i style="width:${100*o.i/o.q.length}%"></i></div><div class="q">${q}</div>${voc&&TTSL[st.set.fach]?`<div class="spkrow">${spkBtn(it.n)}<small>Aussprache anhören</small></div>`:""}
  ${long?`<textarea id="va" class="vin" autocomplete="off" spellcheck="false" placeholder="Deine Erklärung …" ${f?"disabled":""}>${f?E(f.u):""}</textarea>`:`<input id="va" class="vin" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Antwort …" value="${f?E(f.u):""}" ${f?"disabled":""}>`}
  ${f&&(f.j||long)?`<div class="box ${f.j?"falle":"merk"}"><b>${long?"Musterlösung":f.j===1?"Fast, richtig wäre":"Richtig wäre"}</b>${E(tg)}${!long&&f.j===1?"<br>Achte auf Akzente, Tippfehler oder den Artikel.":!long&&f.j===2?"<br>Deine Eingabe: "+E(f.u||"–"):""}</div>`:""}
  <div class="row" style="margin-top:1rem"><button class="btn" data-a="${k}quit">Abbrechen</button>${f&&f.j&&!voc?`<button class="btn" data-a="tforce">Zählt als richtig</button>`:""}<button class="btn pri" data-a="${k}${f?"next":"check"}">${f?"Weiter":"Prüfen"}</button></div>`}
