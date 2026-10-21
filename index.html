@@ -236,7 +236,7 @@ textarea.edt{font-family:inherit;font-size:.95rem;min-height:84px;resize:vertica
 .flag{flex:none;min-height:0;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:1.05rem;cursor:pointer;display:inline-grid;place-items:center;padding:0}
 .flag.done{opacity:.6;font-size:.8rem;cursor:default}
 .corr{margin-top:.5rem}
-.vlh{margin:1rem 0 .2rem}.vlist .vli{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:1px solid var(--line)}.vlist .vli:last-child{border-bottom:0}.vlist .vli small{display:block;color:var(--mute)}
+.vlh{margin:1rem 0 .2rem}.vtg{margin:.8rem 0 .3rem}.pgi{display:flex;align-items:center;gap:.4rem}.pgi input{width:5.2rem}.vpg{font-style:normal;color:var(--mute);font-size:.8em}.vlist .vli{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:1px solid var(--line)}.vlist .vli:last-child{border-bottom:0}.vlist .vli small{display:block;color:var(--mute)}
 .rep{padding:.7rem 0;border-bottom:1px solid var(--line)}.rep.resolved{opacity:.65}.rep p{margin:.3rem 0}.rep .rh{display:flex;justify-content:space-between;gap:.5rem;align-items:center}.rep .rh small{color:var(--mute)}
 .tiny{min-height:0!important;padding:.15rem .6rem!important;font-size:.75rem!important;cursor:default!important}
 
@@ -414,7 +414,7 @@ const DOCS={"bg11-recht":[
 ]};
 /* ===== Ab hier: App-Logik ===== */
 const KEY="lernapp-v1";
-const D={layout:"auto",theme:"auto",size:1,shuffle:true,mode:"training",count:10,exam:"",topics:[],accent:"blue",anim:true,nick:"",fach:"VBL",dir:"es-de",tdir:"d2n",qt:"all",sound:false,haptic:true,compact:false,remind:true,hc:false,deckel:"standard",team:"",adm:false};
+const D={layout:"auto",theme:"auto",size:1,shuffle:true,mode:"training",count:10,exam:"",topics:[],accent:"blue",anim:true,nick:"",fach:"VBL",dir:"es-de",tdir:"d2n",qt:"all",sound:false,haptic:true,compact:false,remind:true,hc:false,deckel:"standard",team:"",adm:false,pf:"",pt:""};
 const FACH=["Biologie","VBL","Religion","Physik","Deutsch","Mathematik","Englisch","Chemie","Sport","GGK","Spanisch","Informatik"],KINDS=[["klassenarbeit","Klassenarbeiten"],["test","Tests"],["vokabeln","Vokabeln"]],LANG=["Spanisch","Englisch"];
 /* Einstellungen, die zwischen Geräten synchronisiert werden (Fach, Klausur, Layout, Textgröße bleiben pro Gerät) */
 const SYNCSET=["theme","accent","anim","hc","shuffle","nick","sound","haptic","compact","remind","mode","deckel"],BOOLS=["shuffle","anim","hc","sound","haptic","compact","remind"];
@@ -798,10 +798,19 @@ function nq(x){if(!Array.isArray(x)||typeof x[1]!=="string")return null;const t=
  if(!Array.isArray(x[2])||x[2].length<2||!Number.isInteger(x[3])||x[3]<0||x[3]>=x[2].length)return null;
  return{t,q,o:x[2].map(String),a:x[3],w,ty:"mc"}}
 const QL=ex=>ex?(ex.q||[]).map(x=>{const n=nq(x);return n&&{id:ex.id+":"+hh(x[1]),...n}}).filter(Boolean):[];
-const TL=ex=>ex?(ex.t||[]).filter(x=>Array.isArray(x)&&x.length>=3).map(x=>({id:ex.id+":"+hh(String(x[1])),t:x[0],n:String(x[1]),d:String(x[2])})):[];
+const TL=ex=>{if(!ex)return[];const seen={};return(ex.t||[]).filter(x=>Array.isArray(x)&&x.length>=3).map(x=>{const pg=x.length>3&&x[3]!=null?String(x[3]).trim():"",pn=parseInt(pg),o={id:ex.id+":"+hh(pg?String(x[0])+"|"+String(x[1])+"|"+pg:String(x[1])),t:x[0],n:String(x[1]),d:String(x[2])};
+ if(pg&&!isNaN(pn)){o.p=pg;o.pn=pn;o.pe=parseInt(pg.split("/").pop())||pn;if(seen[o.id])o.id+="~"+(++seen[o.id]);else seen[o.id]=1}return o})};
+const vflt=ex=>{const s=st.set,a=parseInt(s.pf),b=parseInt(s.pt);return TL(ex).filter(x=>(!s.topics.length||s.topics.includes(x.t))&&(isNaN(a)||!x.pn||x.pe>=a)&&(isNaN(b)||!x.pn||x.pn<=b))};
+const vcnt=ex=>vflt(ex).length+" von "+TL(ex).length+" Vokabeln ausgewählt";
+function vSel(ex,tp){const s=st.set,all=TL(ex),pg=all.filter(x=>x.pn);
+ if(!pg.length)return`<h2>Themen</h2>${chips([["__all","Alle"],...tp.map(x=>[x,x])],v=>v==="__all"?!s.topics.length:s.topics.includes(v),"topic")}`;
+ const gr={},tn={};tp.forEach(t=>{const p=t.split(" · ");(gr[p[0]]=gr[p[0]]||[]).push(t);if(p[1]==="Einstieg"&&p[2])tn[p[0]]=p[2]});
+ const mn=Math.min(...pg.map(x=>x.pn)),mx=Math.max(...pg.map(x=>x.pe));
+ return`<h2>Bereich</h2>${chips([["__all","Alles"]],v=>!s.topics.length,"topic")}`+Object.keys(gr).map(k=>`<div class="vtg"><button class="chip ${gr[k].every(t=>s.topics.includes(t))?"on":""}" data-a="topicall" data-v="${E(k)}"><b>${E(k)}</b>${tn[k]?" · "+E(tn[k]):""}</button></div>`+chips(gr[k].map(t=>{const p=t.split(" · ");return[t,p[1]==="Einstieg"?"Einstieg":p[1]+(p[2]?" · "+p[2]:"")]}),v=>s.topics.includes(v),"topic")).join("")
+ +`<h2>Seiten</h2><div class="row"><label class="pgi">von <input id="pf" type="number" inputmode="numeric" min="${mn}" max="${mx}" placeholder="${mn}" value="${E(s.pf||"")}"></label><label class="pgi">bis <input id="pt" type="number" inputmode="numeric" min="${mn}" max="${mx}" placeholder="${mx}" value="${E(s.pt||"")}"></label></div><p class="mute" id="vcnt">${vcnt(ex)}</p>`}
 const topics=ex=>[...new Set([...(ex.q||[]),...(ex.t||[])].map(x=>x&&x[0]))].filter(Boolean);
 const nz=s=>String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^\p{L}\p{N} ]/gu," ").replace(/\s+/g," ").trim();
-const noart=s=>nz(s).replace(/^(der|die|das|ein|eine|el|la|los|las|un|una|etw|jdn|jdm) /,"");
+const noart=s=>nz(s).replace(/^(der|die|das|ein|eine|el|la|los|las|un|una|etw|jdn|jdm|to) /,"");
 function lev(a,b){const m=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=m[0];m[0]=i;for(let j=1;j<=b.length;j++){const t=m[j];m[j]=Math.min(m[j]+1,m[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t}}return m[b.length]}
 function fj(u,t){const y=noart(String(u||""));if(!y)return false;return t.split("|").some(a=>{const x=noart(a);return x&&(x===y||(x.length>=6&&!/\d/.test(x)&&lev(x,y)<=1))})}
 function okq(q,ans){if(!q||ans===undefined||ans===null)return false;
@@ -943,7 +952,7 @@ function wheel(){const w=$("#wh");if(!w||!w.firstElementChild)return;const IH=w.
   for(let j=0;j<w.children.length;j++){const el=w.children[j],d=Math.min(Math.abs(j-c),3);el.style.transform="scale("+(1.16-.2*d).toFixed(3)+")";el.style.opacity=Math.max(.25,1-.3*d).toFixed(2)}
   if(k!==last){if(last>=0)w.children[last].classList.remove("sel");w.children[k].classList.add("sel");last=k}return k};
  const req=()=>{if(!raf)raf=requestAnimationFrame(frame)};
- const commit=()=>{const k=frame();if(st.set.fach!==FACH[k]){st.set.fach=FACH[k];st.set.exam="";st.set.topics=[];vr=null;tr=null;if(st.run&&st.run.done)st.run=null;save();nav();const fp=$("#fp");if(fp)fp.innerHTML=fachPanel()}};
+ const commit=()=>{const k=frame();if(st.set.fach!==FACH[k]){st.set.fach=FACH[k];st.set.exam="";st.set.topics=[];st.set.pf=st.set.pt="";vr=null;tr=null;if(st.run&&st.run.done)st.run=null;save();nav();const fp=$("#fp");if(fp)fp.innerHTML=fachPanel()}};
  w.scrollTop=Math.max(0,FACH.indexOf(st.set.fach))*IH;frame();
  w.addEventListener("scroll",()=>{req();clearTimeout(tm);tm=setTimeout(commit,"onscrollend"in window?400:110)},{passive:true});
  if("onscrollend"in window)w.addEventListener("scrollend",()=>{clearTimeout(tm);commit()});
@@ -1023,12 +1032,12 @@ function vVoc(){const head=`<h1>Vokabeln</h1>${lockBar()}`;
  if(vr&&!vr.done)return runT("v");if(vr&&vr.done)return endT("v");
  const ex=cur(),s=st.set;
  if(!ex||!TL(ex).length)return head+examChips()+`<div class="card">Noch keine Vokabeln in ${E(st.set.fach)}. Importiere unter „Optionen“ eine Klausur mit Begriffen.</div>`;
- if(ui.vlist){const all=TL(ex),tp2=topics(ex).filter(t=>all.some(x=>x.t===t));return`${head}<button class="btn" data-a="vlist">← Zurück zum Training</button><h2>Vokabelliste · ${E(ex.title)}</h2><p class="mute">${all.length} Einträge</p>`+tp2.map(t=>`<h3 class="vlh">${E(t)}</h3><div class="card vlist">${all.filter(x=>x.t===t).map(x=>`<div class="vli"><span><b>${E(x.n)}</b><small>${E(x.d)}</small></span>${TTSL[st.set.fach]?spkBtn(x.n,1):""}</div>`).join("")}</div>`).join("")}
+ if(ui.vlist){const all=TL(ex),tp2=topics(ex).filter(t=>all.some(x=>x.t===t));return`${head}<button class="btn" data-a="vlist">← Zurück zum Training</button><h2>Vokabelliste · ${E(ex.title)}</h2><p class="mute">${all.length} Einträge</p>`+tp2.map(t=>`<h3 class="vlh">${E(t)}</h3><div class="card vlist">${all.filter(x=>x.t===t).map(x=>`<div class="vli"><span><b>${E(x.n)}</b><small>${E(x.d)}${x.p?` <i class="vpg">· S. ${E(x.p)}</i>`:""}</small></span>${TTSL[st.set.fach]?spkBtn(x.n,1):""}</div>`).join("")}</div>`).join("")}
  const tp=topics(ex).filter(t=>(ex.t||[]).some(x=>x[0]===t)),vw=TL(ex).filter(x=>st.qs[x.id]&&st.qs[x.id].l===0).length;
  return`${head}<button class="btn" data-a="vlist" style="margin-bottom:.6rem">📋 Vokabelliste</button>${examChips()}
  ${ui.qmsg?`<div class="box falle"><b>Hinweis</b>${E(ui.qmsg)}</div>`:""}
  <h2>Richtung</h2>${chips([["es-de","Fremdsprache ➔ Deutsch"],["de-es","Deutsch ➔ Fremdsprache"]],v=>s.dir===v,"dir")}
- <h2>Themen</h2>${chips([["__all","Alle"],...tp.map(x=>[x,x])],v=>v==="__all"?!s.topics.length:s.topics.includes(v),"topic")}
+ ${vSel(ex,tp)}
  <h2>Anzahl</h2>${chips([["10","10"],["20","20"],["30","30"],["0","Alle"]],v=>String(s.count)===v,"count")}
  <div class="row" style="margin-top:1.2rem"><button class="btn pri" data-a="vstart">${ui.vWrong?"Fehler üben starten":"Training starten"}</button><button class="btn ${ui.vWrong?"pri":""}" data-a="vwrong">⚠️ Fehler-Kiste (${vw} Aufgabe${vw===1?"":"n"})${ui.vWrong?" ✓":""}</button></div>`}
 let vr=null,tr=null;
@@ -1039,7 +1048,7 @@ function judge(u,target){u=u.trim().replace(/\s+/g," ");if(!u)return 2;const al=
 /* Erklärungen sind frei formuliert: bewertet wird, wie viele Schlüsselwörter der Musterlösung vorkommen */
 function judgeDef(u,t){u=u.trim();if(!u)return 2;if(nz(u)===nz(t))return 0;const k=kw(t);if(!k.length)return judge(u,t);const uw=nz(u).split(" ").filter(Boolean);
  const hit=k.filter(w=>uw.some(x=>x===w||(w.length>=6&&(x.startsWith(w.slice(0,Math.max(5,w.length-3)))||lev(x,w)<=1)))).length,r=hit/k.length;return r>=.6?0:r>=.35?1:2}
-function startT(k){const ex=cur(),s=st.set;if(!ex)return;ui.qmsg="";let it=TL(ex).filter(x=>!s.topics.length||s.topics.includes(x.t));if(k==="v"&&ui.vWrong)it=it.filter(x=>st.qs[x.id]&&st.qs[x.id].l===0);if(!it.length){ui.qmsg=k==="v"&&ui.vWrong?"Keine offenen Fehler in dieser Auswahl.":"Keine passenden Einträge.";return}
+function startT(k){const ex=cur(),s=st.set;if(!ex)return;ui.qmsg="";let it=vflt(ex);if(k==="v"&&ui.vWrong)it=it.filter(x=>st.qs[x.id]&&st.qs[x.id].l===0);if(!it.length){ui.qmsg=k==="v"&&ui.vWrong?"Keine offenen Fehler in dieser Auswahl.":"Keine passenden Einträge.";return}
  it=k==="t"?wshuf(it,x=>st.tm[x.id]==="n"?3:st.tm[x.id]==="k"?.7:1.5):wshuf(it);if(+s.count)it=it.slice(0,+s.count);
  const o={ex:ex.id,q:it,i:0,retry:[],phase:0,res:{g:0,o:0,r:0},fb:null,done:false,dir:k==="v"?s.dir:s.tdir};k==="v"?vr=o:tr=o}
 function checkT(k){const o=k==="v"?vr:tr,it=o.q[o.i],u=($("#va")||{}).value||"",voc=k==="v",showN=voc?o.dir==="es-de":o.dir==="n2d",tg=showN?it.d:it.n,j=!voc&&showN?judgeDef(u,tg):judge(u,tg);
@@ -1230,10 +1239,11 @@ function act(a,v){const s=st.set;
  if(a==="close"){ui.modal=""}
  else if(a==="modal"){ui.modal=v}
  else if(a==="go"){st.view=v;ui.confirm=0;ui.lo=0;ui.msg="";ui.qmsg="";ui.vlist=false}
- else if(a==="exam"){s.exam=v;s.topics=[];vr=null;tr=null;ui.vlist=false}
- else if(a==="pickw"){s.exam=v;s.topics=[];vr=null;tr=null;ui.onlyWrong=false;ui.vWrong=false;ui.vlist=false}
+ else if(a==="exam"){s.exam=v;s.topics=[];s.pf=s.pt="";vr=null;tr=null;ui.vlist=false}
+ else if(a==="pickw"){s.exam=v;s.topics=[];s.pf=s.pt="";vr=null;tr=null;ui.onlyWrong=false;ui.vWrong=false;ui.vlist=false}
  else if(a==="vlist"){ui.vlist=!ui.vlist}
- else if(a==="topic"){v==="__all"?s.topics=[]:s.topics=s.topics.includes(v)?s.topics.filter(x=>x!==v):[...s.topics,v]}
+ else if(a==="topicall"){const ex=cur();if(ex){const L=topics(ex).filter(t=>t.startsWith(v+" · ")),all=L.every(t=>s.topics.includes(t));s.topics=all?s.topics.filter(t=>!L.includes(t)):[...new Set([...s.topics,...L])]}}
+ else if(a==="topic"){v==="__all"?(s.topics=[],s.pf=s.pt=""):s.topics=s.topics.includes(v)?s.topics.filter(x=>x!==v):[...s.topics,v]}
  else if(a==="mode"){s.mode=v}
  else if(a==="count"){s.count=+v}
  else if(a==="wrongtoggle"){ui.onlyWrong=!ui.onlyWrong}
@@ -1263,7 +1273,7 @@ function act(a,v){const s=st.set;
  else if(a==="tt2"){ui.open[v]=!ui.open[v]}
  else if(a==="tmode"){ui.tmode=v;ui.qmsg=""}
  else if(a==="mark"){const[id,k]=v.split("|");st.tm[id]=st.tm[id]===k?"":k;st.tmt[id]=Date.now()}
- else if(a==="open"){const[w,id]=v.split("|"),e=exams().find(x=>x.id===id);if(e){s.fach=e.fach;s.exam=id;s.topics=[]}vr=null;tr=null;st.view=w}
+ else if(a==="open"){const[w,id]=v.split("|"),e=exams().find(x=>x.id===id);if(e){s.fach=e.fach;s.exam=id;s.topics=[];s.pf=s.pt=""}vr=null;tr=null;st.view=w}
  else if(a==="dir"){s.dir=v}
  else if(a==="tdir"){s.tdir=v}
  else if(a==="vstart"||a==="tstart"){startT(a[0])}
@@ -1299,7 +1309,7 @@ document.addEventListener("keydown",e=>{
  if(e.key==="Enter"&&!e.shiftKey&&run&&!run.done&&!e.isComposing&&e.target.id!=="ts"){e.preventDefault();act(k+(run.fb?"next":"check"));return}
  if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("term")){e.preventDefault();act("tt2",e.target.dataset.v)}
  if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("wk")){e.preventDefault();act("pickw",e.target.dataset.v)}});
-document.addEventListener("input",e=>{if(e.target.dataset&&e.target.dataset.ed){edIn(e.target);return}if(e.target.id==="mq"){ui.mq=e.target.value;const p=e.target.selectionStart;render();const n=$("#mq");n.focus();n.setSelectionRange(p,p);return}if(e.target.id==="edf"&&ui.ed){ui.ed.f=e.target.value;ui.ed.lim=30;const p=e.target.selectionStart;render();const n=$("#edf");n.focus();n.setSelectionRange(p,p);return}if(e.target.id==="nick"){st.set.nick=e.target.value.slice(0,20);save();return}if(e.target.id==="ts"){ui.tq=e.target.value;const p=e.target.selectionStart;render();const n=$("#ts");n.focus();n.setSelectionRange(p,p)}});
+document.addEventListener("input",e=>{if(e.target.id==="pf"||e.target.id==="pt"){st.set[e.target.id]=e.target.value.replace(/\D/g,"").slice(0,3);save();const c=$("#vcnt"),x=cur();if(c&&x)c.textContent=vcnt(x);return}if(e.target.dataset&&e.target.dataset.ed){edIn(e.target);return}if(e.target.id==="mq"){ui.mq=e.target.value;const p=e.target.selectionStart;render();const n=$("#mq");n.focus();n.setSelectionRange(p,p);return}if(e.target.id==="edf"&&ui.ed){ui.ed.f=e.target.value;ui.ed.lim=30;const p=e.target.selectionStart;render();const n=$("#edf");n.focus();n.setSelectionRange(p,p);return}if(e.target.id==="nick"){st.set.nick=e.target.value.slice(0,20);save();return}if(e.target.id==="ts"){ui.tq=e.target.value;const p=e.target.selectionStart;render();const n=$("#ts");n.focus();n.setSelectionRange(p,p)}});
 document.addEventListener("change",e=>{if(e.target.id==="gfile"&&e.target.files[0]){const fl=e.target.files[0],f=new FileReader();f.onload=()=>gparse(f.result,fl.name);f.readAsText(fl);e.target.value="";return}if(e.target.id==="gfach"&&ui.gp){ui.gp.fach=e.target.value;return}if(e.target.id==="file"&&e.target.files[0]){const f=new FileReader();f.onload=()=>imp(f.result);f.readAsText(e.target.files[0])}});
 document.addEventListener("toggle",e=>{const d=e.target;if(d&&d.dataset&&d.dataset.k)ui.det[d.dataset.k]=d.open},true);
 
