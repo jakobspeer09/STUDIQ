@@ -229,6 +229,16 @@ textarea.edt{font-family:inherit;font-size:.95rem;min-height:84px;resize:vertica
 .mt td:first-child,.mt th:first-child{position:sticky;left:0;z-index:1;background:var(--card);font-weight:700}.mt th:first-child{z-index:3}
 .mt tr:nth-child(even) td{background:color-mix(in srgb,var(--blueBg) 40%,var(--card))}.mt td.n{text-align:right;font-variant-numeric:tabular-nums}
 .mt td.act{white-space:nowrap}.mt td.act .chip{display:block;margin:.15rem 0;min-height:0;padding:.25rem .6rem;font-size:.75rem}.mt td.act .chip.dgr{color:var(--red)}
+
+.cfx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:60}
+.card.wk{cursor:pointer;transition:box-shadow .2s,border-color .2s}.card.wk.sel{border-color:var(--blue);background:color-mix(in srgb,var(--blueBg) 82%,var(--card));box-shadow:0 0 0 2px var(--blue),var(--sh)}
+.tagrow{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+.flag{flex:none;min-height:0;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:1.05rem;cursor:pointer;display:inline-grid;place-items:center;padding:0}
+.flag.done{opacity:.6;font-size:.8rem;cursor:default}
+.corr{margin-top:.5rem}
+.vlh{margin:1rem 0 .2rem}.vlist .vli{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:1px solid var(--line)}.vlist .vli:last-child{border-bottom:0}.vlist .vli small{display:block;color:var(--mute)}
+.rep{padding:.7rem 0;border-bottom:1px solid var(--line)}.rep.resolved{opacity:.65}.rep p{margin:.3rem 0}.rep .rh{display:flex;justify-content:space-between;gap:.5rem;align-items:center}.rep .rh small{color:var(--mute)}
+.tiny{min-height:0!important;padding:.15rem .6rem!important;font-size:.75rem!important;cursor:default!important}
 </style></head><body><div id="app"></div><nav id="nav"></nav>
 <script>
 /* ===== PLATZHALTER: hier später Impressum & Datenschutz eintragen ===== */
@@ -573,24 +583,32 @@ function silentURL(){const n=8000,b=new Uint8Array(44+n),d=new DataView(b.buffer
  w(0,"RIFF");d.setUint32(4,36+n,true);w(8,"WAVEfmt ");d.setUint32(16,16,true);d.setUint16(20,1,true);d.setUint16(22,1,true);d.setUint32(24,8000,true);d.setUint32(28,8000,true);d.setUint16(32,1,true);d.setUint16(34,8,true);w(36,"data");d.setUint32(40,n,true);b.fill(128,44);
  return URL.createObjectURL(new Blob([b],{type:"audio/wav"}))}
 /* Muss synchron im Klick laufen: Seite als Medien-Wiedergabe markieren, damit der Stumm-Schalter die Ausgabe nicht blockiert */
+const HASAS=()=>{try{return!!navigator.audioSession}catch(e){return false}};
+/* Verhindert (soweit möglich) Sperrbildschirm-/Statusleisten-Player */
+const noMedia=()=>{try{const m=navigator.mediaSession;if(m){m.metadata=null;m.playbackState="none";for(const a of["play","pause","stop","seekbackward","seekforward","previoustrack","nexttrack","seekto"])try{m.setActionHandler(a,null)}catch(e){}}}catch(e){}};
 function unlockAudio(){
  try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
  try{const AC=window.AudioContext||window.webkitAudioContext;if(AC){if(!_ac)_ac=new AC();if(_ac.state!=="running")_ac.resume();const b=_ac.createBufferSource();b.buffer=_ac.createBuffer(1,1,22050);b.connect(_ac.destination);b.start(0)}}catch(e){}
+ /* Stiller <audio>-Loop nur noch auf altem iOS ohne audioSession (er erzeugt den Sperrbildschirm-Player) */
+ if(!IOS||HASAS())return;
  try{if(!_sil){_sil=new Audio(silentURL());_sil.loop=true;_sil.setAttribute("playsinline","")}
-  const p=_sil.play();if(p&&p.catch)p.catch(()=>{});clearTimeout(_silT);_silT=setTimeout(stopSil,20000)}catch(e){}}
+  const p=_sil.play();if(p&&p.catch)p.catch(()=>{});clearTimeout(_silT);_silT=setTimeout(stopSil,20000);noMedia()}catch(e){}}
 function stopSil(){clearTimeout(_silT);try{_sil&&_sil.pause()}catch(e){}}
 function gtts(txt,g,fb){const a=new Audio("https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl="+g+"&q="+encodeURIComponent(txt.slice(0,200)));
- a.referrerPolicy="no-referrer";ttsA=a;let done=0;const bad=()=>{if(done)return;done=1;if(fb)fb();else{stopSil();toast("Aussprache ist auf diesem Gerät gerade nicht verfügbar.")}};
- a.onerror=bad;a.onended=stopSil;const p=a.play();if(p&&p.catch)p.catch(bad)}
-function nat(txt,L,v){try{const u=new SpeechSynthesisUtterance(txt);u.voice=v;u.lang=v.lang;u.rate=.9;u.volume=1;u.onend=stopSil;u.onerror=ev=>{if(ev.error!=="canceled"&&ev.error!=="interrupted")gtts(txt,L.g);else stopSil()};speechSynthesis.speak(u);return true}catch(e){return false}}
+ a.referrerPolicy="no-referrer";try{a.disableRemotePlayback=true}catch(e){}ttsA=a;let done=0;const bad=()=>{if(done)return;done=1;if(fb)fb();else{stopSil();toast("Aussprache ist auf diesem Gerät gerade nicht verfügbar.")}};
+ a.onerror=bad;a.onplaying=noMedia;a.onended=()=>{stopSil();noMedia()};const p=a.play();if(p&&p.catch)p.catch(bad);noMedia()}
+function nat(txt,L,v){try{const u=new SpeechSynthesisUtterance(txt);u.voice=v;u.lang=v.lang;u.rate=.9;u.volume=1;let ok=0;u.onstart=()=>{ok=1};u.onend=stopSil;
+ u.onerror=ev=>{ok=1;if(ev.error!=="canceled"&&ev.error!=="interrupted")gtts(txt,L.g);else stopSil()};speechSynthesis.speak(u);
+ /* Wächter gegen stille Aussetzer (iOS/Chrome verschlucken manchmal die Äußerung) */
+ setTimeout(()=>{try{if(!ok&&!speechSynthesis.speaking){speechSynthesis.cancel();gtts(txt,L.g)}}catch(e){}},1600);return true}catch(e){return false}}
 function say(txt){const L=TTSL[st.set.fach];txt=String(txt||"").replace(/\([^)]*\)/g," ").replace(/\s+/g," ").trim();if(!L||!txt)return;
  unlockAudio();
- try{speechSynthesis.cancel()}catch(e){}if(ttsA){try{ttsA.pause()}catch(e){}ttsA=null}
- const v=pickVoice(L.g,L.pref);
- /* iOS: <audio> läuft sicher als Medien-Kanal (ignoriert den Stumm-Schalter); Systemstimme nur als Rückfall */
- if(IOS){gtts(txt,L.g,v?()=>{nat(txt,L,v)||gtts(txt,L.g)}:null);return}
- if(v&&nat(txt,L,v))return;
- gtts(txt,L.g)}
+ let busy=false;try{busy=speechSynthesis.speaking||speechSynthesis.pending}catch(e){}
+ if(busy)try{speechSynthesis.cancel()}catch(e){}if(ttsA){try{ttsA.pause()}catch(e){}ttsA=null}
+ const v=pickVoice(L.g,L.pref),go=()=>{if(v&&nat(txt,L,v))return;gtts(txt,L.g)};
+ /* Alt-iOS ohne audioSession: <audio> ignoriert den Stumm-Schalter, Systemstimme nur als Rückfall */
+ if(IOS&&!HASAS()){gtts(txt,L.g,v?()=>{nat(txt,L,v)||gtts(txt,L.g)}:null);return}
+ if(busy)setTimeout(go,80);else go()}
 
 /* ===== Admin-Dashboard ===== */
 const mterr=e=>e.st===404?"Funktion admin_user_overview nicht gefunden. Bitte supabase_admin_overview.sql im Supabase SQL Editor ausführen.":(e.st===401||e.st===403||/Kein Zugriff/.test(e.message||""))?"Kein Zugriff. Ist das Admin-Konto in app_admins eingetragen?":(e.message||"Unbekannter Fehler");
@@ -602,6 +620,15 @@ async function delUser(){const id=ui.mdel,m=(ui.mem||[]).find(x=>x.user_id===id)
  try{await tapi("/rest/v1/rpc/admin_delete_user_data",{method:"POST",body:JSON.stringify({p_user_id:id})});ui.mem=ui.mem.filter(x=>x.user_id!==id);ui.mmsg="Profil von "+m.email+" wurde gelöscht. Eine Neuregistrierung mit dieser E-Mail ist jetzt möglich."}
  catch(e){ui.merr=e.st===404?"Funktion admin_delete_user_data nicht gefunden. Bitte supabase_admin_delete.sql im Supabase SQL Editor ausführen.":mterr(e)}
  ui.mdel=null;ui.mbusy=0;render()}
+async function loadReports(){if(!isAdm()||ui.rbusy)return;ui.rbusy=1;ui.rerr="";
+ try{ui.rl=(await tapi("/rest/v1/reported_errors?select=*&order=created_at.desc&limit=300"))||[]}catch(e){ui.rerr=e.st===404?"Tabelle reported_errors nicht gefunden. Bitte supabase_reported_errors.sql im Supabase SQL Editor ausführen.":mterr(e)}
+ ui.rbusy=0;softRender()}
+async function setRep(v){const[id,stt]=v.split("|");try{const r=await tapi("/rest/v1/reported_errors?id=eq."+encodeURIComponent(id),{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({status:stt})});if(!r||!r.length)throw new Error("Keine Berechtigung.");const x=(ui.rl||[]).find(y=>y.id===id);if(x)x.status=stt;ui.rerr=""}catch(e){ui.rerr=mterr(e)}softRender()}
+async function delRep(id){if(ui.rdc!==id){ui.rdc=id;render();return}ui.rdc="";try{const r=await tapi("/rest/v1/reported_errors?id=eq."+encodeURIComponent(id),{method:"DELETE",headers:{Prefer:"return=representation"}});if(!r||!r.length)throw new Error("Keine Berechtigung.");ui.rl=(ui.rl||[]).filter(y=>y.id!==id);ui.rerr=""}catch(e){ui.rerr=mterr(e)}softRender()}
+function errView(){const L=ui.rl,f=ui.rf||"pending",nm=id=>{const m=(ui.mem||[]).find(x=>x.user_id===id);return m?(m.nick||m.email||"?"):String(id).slice(0,8)},dt=x=>new Date(x).toLocaleString("de-DE",{dateStyle:"short",timeStyle:"short"}),rows=(L||[]).filter(x=>f==="all"||x.status===f);
+ return`<div class="card grp"><div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem"><h3 style="margin:0">Gemeldete Fehler</h3><button class="btn sm" data-a="rload">${ui.rbusy?"Lädt …":"Aktualisieren"}</button></div>${chips([["pending","Offen"],["resolved","Erledigt"],["all","Alle"]],v=>f===v,"rf")}
+ ${ui.rerr?`<div class="box falle"><b>Hinweis</b>${E(ui.rerr)}</div>`:""}
+ ${L?rows.length?rows.map(x=>`<div class="rep ${E(x.status)}"><div class="rh"><span class="chip tiny">${E(x.item_type)}</span><small>${E(dt(x.created_at))} · ${E(nm(x.user_id))}</small></div><p><b>${E(x.item_id_or_question)}</b></p>${x.message?`<p class="mute" style="font-size:.82rem">${E(x.message)}</p>`:""}<div class="row">${x.status==="pending"?`<button class="chip" data-a="rres" data-v="${E(x.id)}|resolved">✓ Erledigt</button>`:`<button class="chip" data-a="rres" data-v="${E(x.id)}|pending">↺ Wieder öffnen</button>`}<button class="chip dgr" data-a="rdel" data-v="${E(x.id)}">${ui.rdc===x.id?"Wirklich löschen?":"🗑️ Löschen"}</button></div></div>`).join(""):`<p class="mute">Keine Meldungen.</p>`:ui.rbusy?`<p class="mute">Lade …</p>`:""}</div>`}
 async function loadMembers(){if(!isAdm()||ui.mbusy)return;ui.mbusy=1;ui.merr="";render();
  try{ui.mem=(await tapi("/rest/v1/rpc/admin_user_overview",{method:"POST",body:"{}"}))||[]}catch(e){ui.merr=mterr(e)}
  ui.mbusy=0;softRender()}
@@ -610,7 +637,9 @@ function vDash(){if(!isAdm())return vHome();
  all=(ui.mem||[]).map(eff),rows=all.filter(r=>!q||(r.nick+" "+(r.email||"")).toLowerCase().includes(q)).sort((a,b)=>{const x=gv(a),y=gv(b);return(x<y?-1:x>y?1:0)*dir}),
  th=(key,l,n)=>`<th class="${k===key?"on":""}" ${n?'style="text-align:right"':""} data-a="msort" data-v="${key}">${l}${k===key?(dir>0?" ▲":" ▼"):""}</th>`,
  dt=x=>x?new Date(x).toLocaleDateString("de-DE"):"–";
- return`<h1>Admin-Dashboard</h1>
+ const pend=(ui.rl||[]).filter(x=>x.status==="pending").length,tabs=chips([["main","Übersicht"],["err","Gemeldete Fehler"+(pend?" ("+pend+")":"")]],v=>(ui.dtab||"main")===v,"dtab");
+ if((ui.dtab||"main")==="err")return`<h1>Admin-Dashboard</h1>${tabs}${errView()}`;
+ return`<h1>Admin-Dashboard</h1>${tabs}
  ${admCard()}
  <div class="card grp"><h3>Globale Klausurtermine</h3><p class="mute" style="margin:.2rem 0">Erscheinen automatisch bei allen Mitschülern.</p>
   <div class="row"><select id="gxf" style="margin:0">${FACH.map(f=>`<option ${f===st.set.fach?"selected":""}>${E(f)}</option>`).join("")}</select><input type="date" id="gxd" style="margin:0"><input id="gxt" placeholder="Titel (optional)" style="margin:0"></div>
@@ -764,9 +793,31 @@ const streak=()=>{let n=0,d=new Date();if(!st.days.includes(ld(d)))d.setDate(d.g
 const dleft=d=>Math.round((new Date(d+"T00:00:00")-new Date(ld(Date.now())+"T00:00:00"))/864e5);
 const wshuf=(a,wf)=>a.map(x=>{const w=wf?wf(x):(()=>{const o=st.qs[x.id];return o?Math.max(.3,1+2*o.w-.5*o.r+(o.l===0?2:0)):1.5})();return[Math.pow(Math.random(),1/w),x]}).sort((p,q)=>q[0]-p[0]).map(p=>p[1]);
 /* Rückmeldung per Ton und Vibration (in den Optionen abschaltbar) */
-let AC;function fb(ok){const s=st.set;if(s.haptic&&navigator.vibrate)try{navigator.vibrate(ok?12:[25,40,25])}catch(e){}
+let _hs=null;
+/* Haptik: Android/Chrome per Vibration API; iOS 18+ Safari (keine Vibration API) per verstecktem Schalter-Trick */
+function hap(p){const s=st&&st.set;if(!s||!s.haptic)return;try{if(navigator.vibrate){navigator.vibrate(p);return}}catch(e){}
+ if(IOS)try{if(!_hs){const l=document.createElement("label");l.setAttribute("aria-hidden","true");l.style.cssText="position:fixed;left:-99px;top:-99px;opacity:0;pointer-events:none";const i=document.createElement("input");i.type="checkbox";i.setAttribute("switch","");l.appendChild(i);document.body.appendChild(l);_hs=l}_hs.click()}catch(e){}}
+/* Konfetti ohne Fremdbibliothek (Canvas) */
+function confetti(n){try{if(st.set.anim===false||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+ const c=document.createElement("canvas");c.className="cfx";c.width=innerWidth;c.height=innerHeight;document.body.appendChild(c);const x=c.getContext("2d"),cols=["#1F57C3","#17794F","#E0A526","#D9483B","#7c5cff","#2CB5C8"],t00=performance.now();
+ const P=[...Array(n||120)].map(()=>({x:innerWidth/2+(Math.random()-.5)*innerWidth*.4,y:innerHeight*.4,vx:(Math.random()-.5)*15,vy:-Math.random()*14-4,w:6+Math.random()*6,h:4+Math.random()*6,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[Math.random()*cols.length|0]}));let t0=t00;
+ (function f(t){const dt=Math.min(2,(t-t0)/16.7||1);t0=t;x.clearRect(0,0,c.width,c.height);let alive=0;for(const p of P){p.vy+=.28*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.r+=p.vr*dt;p.vx*=.995;if(p.y<c.height+20){alive++;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h);x.restore()}}
+  if(alive&&t-t00<4500)requestAnimationFrame(f);else c.remove()})(t00)}catch(e){}}
+let AC;function fb(ok){const s=st.set;hap(ok?18:[35,50,35]);
  if(s.sound)try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain(),n=AC.currentTime;o.type="sine";o.frequency.value=ok?880:220;g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(.15,n+.02);g.gain.exponentialRampToValueAtTime(.0001,n+(ok?.18:.3));o.connect(g);g.connect(AC.destination);o.start();o.stop(n+.32)}catch(e){}}
 function addXp(n){st.xp=(st.xp||0)+n;const h=Math.floor(Date.now()/36e5);st.xlog=st.xlog||{};st.xlog[h]=(st.xlog[h]||0)+n;for(const k of Object.keys(st.xlog))if(+k<h-72)delete st.xlog[k]}
+const okf=(R,q,id)=>R.ov&&id in R.ov?R.ov[id]:okq(q,R.a[id]);
+const R0=r=>r.res0||r;
+function fixRec(id,was,now){if(was===now)return;const o=st.qs[id]||{r:0,w:0,l:1};if(was){o.r=Math.max(0,o.r-1);addXp(-10)}else o.w=Math.max(0,o.w-1);if(now){o.r++;addXp(10)}else o.w++;o.l=now?1:0;o.t=Date.now();st.qs[id]=o;fb(now)}
+const plain=h=>{const d=document.createElement("div");d.innerHTML=h;return d.textContent};
+const flagBtn=(t,id)=>{const k=t+"|"+id;return ui.rd&&ui.rd[k]?`<span class="flag done" title="Gemeldet">✓</span>`:`<button class="flag" data-a="rep" data-v="${E(k)}" aria-label="Fehler melden" title="Fehler melden">🚩</button>`};
+async function report(k){const i=k.indexOf("|"),t=k.slice(0,i),id=k.slice(i+1);ui.rd=ui.rd||{};if(ui.rd[k]||!au)return;let type,item,msg;
+ const e=exams().find(x=>id.startsWith(x.id+":"));if(!e)return;
+ if(t==="q"){const q=QL(e).find(x=>x.id===id);if(!q)return;type="Quiz";item=q.q;msg="["+e.title+" · "+q.t+"] ID "+id+" · "+TYN[q.ty]+" · Lösung: "+plain(corr(q))}
+ else{const it=TL(e).find(x=>x.id===id);if(!it)return;type="Vokabel";item=it.n+" = "+it.d;msg="["+e.title+" · "+it.t+"] ID "+id}
+ ui.rd[k]=1;document.querySelectorAll('[data-a="rep"]').forEach(b=>{if(b.dataset.v===k){const sp=document.createElement("span");sp.className="flag done";sp.title="Gemeldet";sp.textContent="✓";b.replaceWith(sp)}});
+ try{await tapi("/rest/v1/reported_errors",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({user_id:au.id,item_type:type,item_id_or_question:String(item).slice(0,2000),message:msg.slice(0,2000)})});toast("Danke! Der Fehler wurde gemeldet.")}
+ catch(er){delete ui.rd[k];toast(er.st===404?"Melden nicht möglich: Tabelle fehlt (SQL-Skript im Supabase ausführen).":"Melden fehlgeschlagen: "+(er.message||"Fehler"));if(st.view!=="quiz"||!st.run||st.run.done)softRender()}}
 function rec(id,ok){mark();if(ok)addXp(10);const o=st.qs[id]||{r:0,w:0,l:1};ok?o.r++:o.w++;o.l=ok?1:0;o.t=Date.now();st.qs[id]=o;fb(ok)}
 /* Begriffe-Abfrage: richtig = "gewusst", falsch = "nochmal" */
 function recT(id,j){mark();if(j===0){addXp(10);st.tm[id]="k";st.tmt[id]=Date.now();fb(true)}else if(j===2){st.tm[id]="n";st.tmt[id]=Date.now();fb(false)}}
@@ -794,9 +845,10 @@ function dkCard(){const sk=streak(),cur=st.set.deckel||"standard";
  return`<div class="card grp"><h3>Deckel-Sammlung</h3><p class="mute" style="margin:.2rem 0">Aktueller Streak: <b>${sk}</b> Tag${sk===1?"":"e"}. Schalte neue Spezi-Deckel durch Lernen frei.</p><div class="dkgrid">${DK.map(d=>{const o=dkOpen(d),on=cur===d.id&&o;return`<button class="dkt ${o?"":"lock"} ${on?"on":""}" data-a="dk" data-v="${d.id}" aria-label="${d.n}-Deckel${o?"":" (gesperrt)"}"><span class="dki"><img src="${d.img}" alt="">${o?"":LOCK}</span><b>${d.n}</b><small>${on?"Aktiv":o?(d.need?"Freigeschaltet":"Standard"):d.need+" Tage Streak"}</small></button>`}).join("")}</div>${ui.dkmsg?`<div class="box merk" style="margin-top:.7rem"><b>Gesperrt</b>${E(ui.dkmsg)}</div>`:""}</div>`}
 const cap=on=>CAP_IMG?`<img class="cap ${on?"":"off"}" src="${E(capSrc())}" alt="">`:`<svg class="cap ${on?"":"off"}" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="#C9962B" stroke="#8A6414" stroke-width="2" stroke-dasharray="3 2.2"/><circle cx="20" cy="20" r="13" fill="#E3B54B"/><circle cx="20" cy="20" r="8" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2"/></svg>`;
 const IC={home:'<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',quiz:'<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/>',voc:'<path d="M4 5h9M8.5 3v2M6 5c.5 3 2.5 5.5 5.5 7M12 5c-.7 3.2-3 6-7 8"/><path d="M13 21l4-9 4 9M14.5 18h5"/>',terms:'<path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h10"/>',info:'<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/>',set:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'};
+const caps=e=>{if(!e)return{quiz:1,voc:1,terms:1,info:1};const q=(e.q||[]).length,t=(e.t||[]).length,vk=e.kind==="vokabeln";return{quiz:q>0,voc:LANG.includes(e.fach)&&t>0,terms:t>0&&!vk,info:!!(e.doc||DOCS[e.id]||(e.merk||[]).length||(e.falle||[]).length||q>0||(t>0&&!vk))}};
 const TABS=[["home","Start"],["quiz","Quiz"],["voc","Vokabeln"],["terms","Begriffe"],["info","Infos"],["set","Optionen"]];
 function nav(){const v=st.view;if(v==="auth"){$("#nav").innerHTML="";return}
- $("#nav").innerHTML=TABS.map(([k,l])=>{const off=k==="voc"&&!isLang();return`<button class="${v===k?"on":""}" data-a="go" data-v="${k}" ${off?'disabled aria-disabled="true" title="Nur bei Sprachfächern (Spanisch, Englisch)"':""}><svg viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg><span>${l}</span></button>`}).join("")}
+ $("#nav").innerHTML=TABS.map(([k,l])=>{const cp=caps(cur()),off=k in cp&&!cp[k]||k==="voc"&&!isLang();return`<button class="${v===k?"on":""}" data-a="go" data-v="${k}" ${off?`disabled aria-disabled="true" title="${k==="voc"&&!isLang()?"Nur bei Sprachfächern (Spanisch, Englisch)":"Kein Inhalt in der aktiven Arbeit"}"`:""}><svg viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg><span>${l}</span></button>`}).join("")}
 const lockBar=()=>`<div class="lock"><span>Fach:</span> <b>${E(st.set.fach)}</b> <button data-a="go" data-v="home">auf der Startseite ändern</button></div>`;
 const examChips=()=>{const l=FX(),c=cur();return l.length>1&&c?`<h2>Klausur</h2>${chips(l.map(e=>[e.id,e.title]),v=>v===c.id,"exam")}`:""};
 const emptyFach=()=>`<div class="card">Für <b>${E(st.set.fach)}</b> gibt es noch keine Inhalte. Neue Klassenarbeiten erscheinen hier automatisch, sobald sie veröffentlicht wurden. Du kannst auf der Startseite ein anderes Fach wählen.</div><div class="row"><button class="btn" data-a="go" data-v="home">Zur Startseite</button></div>`;
@@ -810,6 +862,7 @@ let lastView="";
 function render(){
  if(sbOn()&&!au&&st.view!=="auth")st.view="auth";
  if(st.view==="voc"&&!isLang())st.view="home";
+ {const cp=caps(cur()),VW=["quiz","voc","terms","info"];if(VW.includes(st.view)&&!cp[st.view]&&!(st.view==="quiz"&&st.run&&!st.run.done)){const f=VW.find(k=>cp[k]&&!(k==="voc"&&!isLang()));st.view=f||"home"}}
  if(st.view==="adm"&&(!isAdm()||!ui.ed))st.view="home";
  if(st.view==="dash"&&!isAdm())st.view="home";
  if(!ui.boot&&chkDk())save();
@@ -829,15 +882,18 @@ function render(){
  app.innerHTML=h;
  if(ch)scrollTo(0,0);
  if(!ui.boot){if(v==="home")wheel();if(v==="voc"&&vr&&!vr.done&&!vr.fb||v==="terms"&&ui.tmode==="quiz"&&tr&&!tr.done&&!tr.fb){const n=$("#va");n&&n.focus()}
-  const t=$(".thumb");if(t&&!rdone&&st.set.anim!==false){rdone=1;rain()}if(!t)rdone=0}}
-let rdone=0;function rain(){for(let i=0;i<16;i++){const m=document.createElement("img");m.src=capSrc();m.className="fall";m.style.left=Math.random()*96+"vw";m.style.animationDelay=Math.random()*.9+"s";document.body.appendChild(m);setTimeout(()=>m.remove(),3400)}}
+  const t=$(".thumb");if(t&&!rdone&&st.set.anim!==false){rdone=1;rain()}if(!t)rdone=0;
+  const pf=$(".perfect");if(pf&&!pfd){pfd=1;confetti(160);hap([30,50,30,50,70])}if(!pf)pfd=0;
+  const dp=$(".modal .dkglow");if(dp&&!dpd){dpd=1;confetti(130)}if(!dp)dpd=0}}
+let rdone=0,pfd=0,dpd=0;function rain(){for(let i=0;i<16;i++){const m=document.createElement("img");m.src=capSrc();m.className="fall";m.style.left=Math.random()*96+"vw";m.style.animationDelay=Math.random()*.9+"s";document.body.appendChild(m);setTimeout(()=>m.remove(),3400)}}
 function assignModal(){const e=exams().find(x=>x.id===ui.assign);if(!e)return"";
  return`<div class="modal" data-a="aclose"><div data-a="keep"><h2 style="margin-top:0">${E(e.title)}</h2><p class="mute">Wohin soll diese Klausur?</p><h2>Fach</h2>${chips(FACH.map(f=>[e.id+"|"+f,f]),v=>v===e.id+"|"+e.fach,"asf")}<h2>Rubrik</h2>${chips(KINDS.map(k=>[e.id+"|"+k[0],k[1]]),v=>v===e.id+"|"+(e.kind||"test"),"ask")}<button class="btn pri" style="margin-top:1rem" data-a="aclose">Fertig</button></div></div>`}
 
 /* ===== Start ===== */
-function fachPanel(){const f=st.set.fach,list=exams().filter(e=>e.fach===f),lang=LANG.includes(f);
- return`<h2 class="fh" style="margin-top:.4rem">${E(f)}</h2>`+KINDS.filter(k=>k[0]!=="vokabeln"||lang||list.some(e=>e.kind==="vokabeln")).map(([k,l])=>{const xs=list.filter(e=>(e.kind||"test")===k);
-  return`<h2>${l}</h2>`+(xs.length?xs.map(e=>{const nq_=(e.q||[]).length,nt=(e.t||[]).length;return`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem"><b>${E(e.title)}</b>${e.g?"":`<button class="chip" data-a="asg" data-v="${E(e.id)}" aria-label="Zuordnen">⋯</button>`}</div><p class="mute">${nq_} Fragen · ${nt} Begriffe</p><div class="btns">${nq_?`<button class="btn pri" data-a="open" data-v="quiz|${E(e.id)}">Quiz</button>`:""}${nt&&lang?`<button class="btn pri" data-a="open" data-v="voc|${E(e.id)}">Vokabeln</button>`:""}${nt?`<button class="btn" data-a="open" data-v="terms|${E(e.id)}">Begriffe</button>`:""}<button class="btn" data-a="open" data-v="info|${E(e.id)}">Infos</button>${isAdm()&&e.g?`<button class="btn" data-a="gedit" data-v="${E(e.gid)}">Bearbeiten</button>`:""}</div></div>`}).join(""):`<p class="mute">Noch keine Inhalte</p>`)}).join("")}
+function fachPanel(){const f=st.set.fach,list=exams().filter(e=>e.fach===f),lang=LANG.includes(f),c0=cur();
+ return`<h2 class="fh" style="margin-top:.4rem">${E(f)}</h2><p class="mute" style="margin-top:-.3rem">Tippe eine Arbeit an, um sie zu aktivieren. Alle Reiter zeigen dann nur deren Inhalte.</p>`+KINDS.filter(k=>k[0]!=="vokabeln"||lang||list.some(e=>e.kind==="vokabeln")).map(([k,l])=>{const xs=list.filter(e=>(e.kind||"test")===k);
+  return`<h2>${l}</h2>`+(xs.length?xs.map(e=>{const on=!!c0&&c0.id===e.id,nq_=(e.q||[]).length,nt=(e.t||[]).length,cp=caps(e),vk=e.kind==="vokabeln",inf=[nq_?nq_+" Fragen":"",nt?nt+(vk?" Vokabeln":" Begriffe"):""].filter(Boolean).join(" · ")||"Nur Infos";
+   return`<div class="card wk ${on?"sel":""}" data-a="pickw" data-v="${E(e.id)}" role="button" tabindex="0" aria-pressed="${on}"><div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem"><b>${on?"✓ ":""}${E(e.title)}</b>${e.g?"":`<button class="chip" data-a="asg" data-v="${E(e.id)}" aria-label="Zuordnen">⋯</button>`}</div><p class="mute">${inf}${on?" · aktiv":""}</p>${on?`<div class="btns">${cp.quiz?`<button class="btn pri" data-a="open" data-v="quiz|${E(e.id)}">Quiz</button>`:""}${cp.voc?`<button class="btn pri" data-a="open" data-v="voc|${E(e.id)}">Vokabeln</button>`:""}${cp.terms?`<button class="btn" data-a="open" data-v="terms|${E(e.id)}">Begriffe</button>`:""}${cp.info?`<button class="btn" data-a="open" data-v="info|${E(e.id)}">Infos</button>`:""}${isAdm()&&e.g?`<button class="btn" data-a="gedit" data-v="${E(e.gid)}">Bearbeiten</button>`:""}</div>`:""}</div>`}).join(""):`<p class="mute">Noch keine Inhalte</p>`)}).join("")}
 function vHome(){const s=st.set,run=st.run&&!st.run.done?st.run:null,ts=allX().filter(x=>dleft(x.d)>=0).sort((a,b)=>a.d<b.d?-1:1),all=Object.values(st.qs),r=all.reduce((a,x)=>a+x.r,0),w=all.reduce((a,x)=>a+x.w,0),wk={},
  days=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-6+i);return[ld(d),["So","Mo","Di","Mi","Do","Fr","Sa"][d.getDay()]]});
  for(const[k,v]of Object.entries(st.qs)){const e=exams().find(e=>k.startsWith(e.id+":"));if(e&&e.fach&&v.l===0)wk[e.fach]=(wk[e.fach]||0)+1}
@@ -886,20 +942,22 @@ function vQuiz(){const r=st.run;let other=null;
  <div style="margin-top:1.2rem" class="row"><button class="btn pri" data-a="start">${ui.onlyWrong?"Fehler üben starten":"Quiz starten"}</button><button class="btn ${ui.onlyWrong?"pri":""}" data-a="wrongtoggle">⚠️ Fehler-Kiste (${wrong} Aufgabe${wrong===1?"":"n"})${ui.onlyWrong?" ✓":""}</button></div>`}
 function runView(r){const ex=exams().find(e=>e.id===r.ex)||cur(),map=Object.fromEntries(QL(ex).map(x=>[x.id,x])),id=r.ids[r.i],q=map[id];
  if(!q){st.run=null;save();return vQuiz()}
- const p=r.p[id]||[],ans=r.a[id],lock=r.mode==="training"&&ans!==undefined,ty=q.ty,typed=ty==="fill"||ty==="match",good=okq(q,ans),L=ty==="tf"?["✓","✗"]:"ABCDEFGH";let body="";
+ const p=r.p[id]||[],ans=r.a[id],lock=r.mode==="training"&&ans!==undefined,ty=q.ty,typed=ty==="fill"||ty==="match",good=r.phase===1?okq(q,ans):okf(r,q,id),L=ty==="tf"?["✓","✗"]:"ABCDEFGH";let body="";
  if(!typed)body=`<div class="opts">${p.map((oi,k)=>{let c="";if(lock)c=oi===q.a?"ok":oi===ans?"no":"";else if(ans===oi)c="sel";return`<button class="btn opt ${c}" data-a="pick" data-v="${oi}" ${lock?"disabled":""}><span class="l">${L[k]}</span><span>${E(q.o[oi])}</span></button>`}).join("")}</div>`;
  else if(ty==="fill"){const parts=q.q.split(/_{3,}/);let h="";q.a.forEach((t,k)=>{const v=Array.isArray(ans)?ans[k]||"":"",c=lock?(fj(v,t)?"ok":"no"):"";h+=E(parts[k]??"")+`<input class="gp ${c}" data-g="${k}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${E(v)}" ${lock?"disabled":""} placeholder="…">`});
   h+=E(parts.slice(q.a.length).join("___"));body=`<div class="q fq">${h}</div>${q.o.length?`<p class="mute">Wortbank: ${q.o.map(E).join(" · ")}</p>`:""}`}
  else{const ord=p.length===q.o.length?p:q.o.map((_,i)=>i);body=`<div class="q">${E(q.q)}</div>`+q.o.map((pr,k)=>{const v=Array.isArray(ans)?ans[k]:-1,c=lock?(v>=0&&q.o[v]&&q.o[v][1]===pr[1]?"ok":"no"):"";
   return`<div class="mrow ${c}"><span>${E(pr[0])}</span><select data-m="${k}" ${lock?"disabled":""}><option value="">Wählen …</option>${ord.map(ri=>`<option value="${ri}" ${v===ri?"selected":""}>${E(q.o[ri][1])}</option>`).join("")}</select></div>`}).join("")}
  const needChk=typed&&r.mode==="training"&&!lock;
- return`<div class="tag">${E(q.t)} · ${TYN[ty]} · Frage ${r.i+1} von ${r.ids.length}</div><div class="bar"><i style="width:${100*r.i/r.ids.length}%"></i></div>${typed?"":`<div class="q">${E(q.q)}</div>`}${body}
+ const willRep=r.mode==="training"&&r.phase!==1&&r.ids.some(i=>map[i]&&r.a[i]!==undefined&&!okf(r,map[i],i));
+ return`<div class="tagrow"><div class="tag">${r.phase===1?"Wiederholung · ":""}${E(q.t)} · ${TYN[ty]} · Frage ${r.i+1} von ${r.ids.length}</div>${flagBtn("q",id)}</div><div class="bar"><i style="width:${100*r.i/r.ids.length}%"></i></div>${typed?"":`<div class="q">${E(q.q)}</div>`}${body}
  ${ui.hint&&needChk?`<p class="mute">${E(ui.hint)}</p>`:""}
- ${lock?`<div class="box ${good?"merk":"falle"}"><b>${good?"Richtig":"Leider falsch"}</b>${good?"":`Richtig ist: ${corr(q)}<br>`}${E(q.w)}</div>`:""}
- <div class="row" style="margin-top:1rem"><button class="btn" data-a="quit">Abbrechen</button>${needChk?`<button class="btn pri" data-a="chk">Prüfen</button>`:`<button class="btn pri" data-a="next" ${!typed&&ans===undefined?"disabled":""}>${r.i+1===r.ids.length?"Auswerten":"Weiter"}</button>`}</div>`}
-function resultView(r){const ex=exams().find(e=>e.id===r.ex)||cur(),map=Object.fromEntries(QL(ex).map(x=>[x.id,x])),ok=r.ids.filter(i=>map[i]&&okq(map[i],r.a[i])).length,n=r.ids.length||1,bad=r.ids.filter(i=>map[i]&&!okq(map[i],r.a[i]));
- return`<h1>Ergebnis</h1>${ok/n>=.7?'<div class="thumb">👍</div>':""}<div class="card"><div class="big">${ok}/${n}</div><p class="mute">${Math.round(100*ok/n)}% richtig · ${ok===n?"Fehlerfrei!":ok/n>=.75?"Stark, fast sicher.":"Noch üben, schau dir die Fehler an."}</p></div>
- ${bad.length?`<h2>Das war falsch</h2>${bad.map(i=>{const q=map[i];return`<div class="card"><b>${E(q.q)}</b><p class="mute">Deine Antwort: ${mine(q,r.a[i])}</p><div class="box merk"><b>Richtig: ${corr(q)}</b>${E(q.w)}</div></div>`}).join("")}`:""}
+ ${lock?`<div class="box ${good?"merk":"falle"}"><b>${good?"Richtig":"Leider falsch"}</b>${good?"":`Richtig ist: ${corr(q)}<br>`}${E(q.w)}</div>${r.phase!==1?`<div class="corr"><button class="chip" data-a="flip">${good?"Doch als falsch werten":"Trotzdem als richtig werten"}</button></div>`:""}`:""}
+ <div class="row" style="margin-top:1rem"><button class="btn" data-a="quit">Abbrechen</button>${needChk?`<button class="btn pri" data-a="chk">Prüfen</button>`:`<button class="btn pri" data-a="next" ${!typed&&ans===undefined?"disabled":""}>${r.i+1===r.ids.length?(willRep?"Falsche wiederholen":"Auswerten"):"Weiter"}</button>`}</div>`}
+function resultView(r){const ex=exams().find(e=>e.id===r.ex)||cur(),map=Object.fromEntries(QL(ex).map(x=>[x.id,x])),R=R0(r),ok=R.ids.filter(i=>map[i]&&okf(R,map[i],i)).length,n=R.ids.length||1,bad=R.ids.filter(i=>map[i]&&!okf(R,map[i],i));
+ return`<h1>Ergebnis</h1>${ok/n>=.7?'<div class="thumb">👍</div>':""}${ok===n?'<span class="perfect"></span>':""}<div class="card"><div class="big">${ok}/${n}</div><p class="mute">${Math.round(100*ok/n)}% richtig · ${ok===n?"Fehlerfrei!":ok/n>=.75?"Stark, fast sicher.":"Noch üben, schau dir die Fehler an."}</p></div>
+ ${r.res0?`<p class="mute">Die falsch beantworteten Fragen wurden am Ende nochmal wiederholt. Gewertet wird der erste Durchgang.</p>`:""}
+ ${bad.length?`<h2>Das war falsch</h2>${bad.map(i=>{const q=map[i];return`<div class="card"><div class="tagrow"><b>${E(q.q)}</b>${flagBtn("q",i)}</div><p class="mute">Deine Antwort: ${mine(q,R.a[i])}</p><div class="box merk"><b>Richtig: ${corr(q)}</b>${E(q.w)}</div><button class="chip" data-a="rflip" data-v="${E(i)}">Trotzdem als richtig werten</button></div>`}).join("")}`:""}
  <div class="row"><button class="btn pri" data-a="again">Neue Runde</button><button class="btn" data-a="go" data-v="terms">Begriffe wiederholen</button></div>`}
 function start(){const ex=cur(),s=st.set;if(!ex)return;ui.qmsg="";let pool=QL(ex).filter(x=>(!s.topics.length||s.topics.includes(x.t))&&(!s.qt||s.qt==="all"||x.ty===s.qt));
  if(ui.onlyWrong)pool=pool.filter(x=>st.qs[x.id]&&st.qs[x.id].l===0);
@@ -935,8 +993,9 @@ function vVoc(){const head=`<h1>Vokabeln</h1>${lockBar()}`;
  if(vr&&!vr.done)return runT("v");if(vr&&vr.done)return endT("v");
  const ex=cur(),s=st.set;
  if(!ex||!TL(ex).length)return head+examChips()+`<div class="card">Noch keine Vokabeln in ${E(st.set.fach)}. Importiere unter „Optionen“ eine Klausur mit Begriffen.</div>`;
+ if(ui.vlist){const all=TL(ex),tp2=topics(ex).filter(t=>all.some(x=>x.t===t));return`${head}<button class="btn" data-a="vlist">← Zurück zum Training</button><h2>Vokabelliste · ${E(ex.title)}</h2><p class="mute">${all.length} Einträge</p>`+tp2.map(t=>`<h3 class="vlh">${E(t)}</h3><div class="card vlist">${all.filter(x=>x.t===t).map(x=>`<div class="vli"><span><b>${E(x.n)}</b><small>${E(x.d)}</small></span>${TTSL[st.set.fach]?spkBtn(x.n,1):""}</div>`).join("")}</div>`).join("")}
  const tp=topics(ex).filter(t=>(ex.t||[]).some(x=>x[0]===t)),vw=TL(ex).filter(x=>st.qs[x.id]&&st.qs[x.id].l===0).length;
- return`${head}<p class="mute">${E(ex.title)}. Du tippst die Antwort ein.</p>${examChips()}
+ return`${head}<button class="btn" data-a="vlist" style="margin-bottom:.6rem">📋 Vokabelliste</button><p class="mute">${E(ex.title)}. Du tippst die Antwort ein.</p>${examChips()}
  ${ui.qmsg?`<div class="box falle"><b>Hinweis</b>${E(ui.qmsg)}</div>`:""}
  <h2>Richtung</h2>${chips([["es-de","Fremdsprache ➔ Deutsch"],["de-es","Deutsch ➔ Fremdsprache"]],v=>s.dir===v,"dir")}
  <h2>Themen</h2>${chips([["__all","Alle"],...tp.map(x=>[x,x])],v=>v==="__all"?!s.topics.length:s.topics.includes(v),"topic")}
@@ -956,17 +1015,20 @@ function startT(k){const ex=cur(),s=st.set;if(!ex)return;ui.qmsg="";let it=TL(ex
 function checkT(k){const o=k==="v"?vr:tr,it=o.q[o.i],u=($("#va")||{}).value||"",voc=k==="v",showN=voc?o.dir==="es-de":o.dir==="n2d",tg=showN?it.d:it.n,j=!voc&&showN?judgeDef(u,tg):judge(u,tg);
  o.fb={j,u};if(o.phase===0){voc?rec(it.id,j<2):recT(it.id,j);o.res[["g","o","r"][j]]++;if(j)o.retry.push(it)}}
 function nextT(k){const o=k==="v"?vr:tr;o.fb=null;o.i++;if(o.i>=o.q.length){if(o.retry.length&&o.phase===0){o.q=o.retry;o.retry=[];o.i=0;o.phase=1}else o.done=true}}
-function forceT(){const o=tr;if(!o||!o.fb||!o.fb.j)return;const it=o.q[o.i];if(o.phase===0){o.res[["g","o","r"][o.fb.j]]--;o.res.g++;o.retry=o.retry.filter(x=>x!==it);recT(it.id,0)}o.fb.j=0}
+function flipT(k){const o=k==="v"?vr:tr;if(!o||!o.fb)return;const it=o.q[o.i],voc=k==="v",old=o.fb.j,nw=old?0:2,K=["g","o","r"];
+ if(o.phase===0){o.res[K[old]]--;o.res[K[nw]]++;if(nw===0)o.retry=o.retry.filter(x=>x!==it);else if(!o.retry.includes(it))o.retry.push(it);
+  if(voc)fixRec(it.id,old<2,nw<2);else if(nw===0)recT(it.id,0);else{addXp(-10);st.tm[it.id]="n";st.tmt[it.id]=Date.now();fb(false)}}
+ o.fb.j=nw}
 function runT(k){const o=k==="v"?vr:tr,it=o.q[o.i],f=o.fb,voc=k==="v",showN=voc?o.dir==="es-de":o.dir==="n2d",long=!voc&&showN,pr=showN?it.n:it.d,tg=showN?it.d:it.n;
  const lab=o.phase?"Nochmal abgefragt":voc?"Tippe die Übersetzung":long?"Schreibe die Erklärung":"Tippe den Fachbegriff";
  const msg=f?["Richtig!",long?"Teilweise richtig":"Fast richtig, kleiner Fehler","Leider falsch"][f.j]:lab;
  const q=voc?E(pr):long?`Was ist „${E(pr)}“?`:E(pr);
  return`<div class="vbar ${f?["g","o","r"][f.j]:""}">${msg}</div>
- <div class="tag">${E(it.t)} · ${o.i+1}/${o.q.length}</div><div class="bar"><i style="width:${100*o.i/o.q.length}%"></i></div><div class="q">${q}</div>${voc&&TTSL[st.set.fach]?`<div class="spkrow">${spkBtn(it.n)}<small>Aussprache anhören</small></div>`:""}
+ <div class="tagrow"><div class="tag">${o.phase?"Wiederholung · ":""}${E(it.t)} · ${o.i+1}/${o.q.length}</div>${flagBtn("v",it.id)}</div><div class="bar"><i style="width:${100*o.i/o.q.length}%"></i></div><div class="q">${q}</div>${voc&&TTSL[st.set.fach]?`<div class="spkrow">${spkBtn(it.n)}<small>Aussprache anhören</small></div>`:""}
  ${long?`<textarea id="va" class="vin" autocomplete="off" spellcheck="false" placeholder="Deine Erklärung …" ${f?"disabled":""}>${f?E(f.u):""}</textarea>`:`<input id="va" class="vin" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Antwort …" value="${f?E(f.u):""}" ${f?"disabled":""}>`}
  ${f&&(f.j||long)?`<div class="box ${f.j?"falle":"merk"}"><b>${long?"Musterlösung":f.j===1?"Fast, richtig wäre":"Richtig wäre"}</b>${E(tg)}${!long&&f.j===1?"<br>Achte auf Akzente, Tippfehler oder den Artikel.":!long&&f.j===2?"<br>Deine Eingabe: "+E(f.u||"–"):""}</div>`:""}
- <div class="row" style="margin-top:1rem"><button class="btn" data-a="${k}quit">Abbrechen</button>${f&&f.j&&!voc?`<button class="btn" data-a="tforce">Zählt als richtig</button>`:""}<button class="btn pri" data-a="${k}${f?"next":"check"}">${f?"Weiter":"Prüfen"}</button></div>`}
-function endT(k){const R=(k==="v"?vr:tr).res,t=R.g+R.o+R.r||1;return`<h1>Runde geschafft</h1>${(R.g+R.o)/t>=.7?'<div class="thumb">👍</div>':""}<div class="stats"><div><b style="color:var(--green)">${R.g}</b>richtig</div><div><b style="color:var(--amber)">${R.o}</b>${k==="v"?"fast":"teilweise"}</div><div><b style="color:var(--red)">${R.r}</b>falsch</div></div><p class="mute" style="margin-top:.8rem">Falsche und teilweise richtige Einträge wurden am Ende nochmal abgefragt. Schwierige kommen in neuen Runden häufiger vor.</p><button class="btn pri" data-a="${k}quit">Neue Runde</button>`}
+ <div class="row" style="margin-top:1rem"><button class="btn" data-a="${k}quit">Abbrechen</button>${f?`<button class="btn" data-a="${k}flip">${f.j?"Trotzdem als richtig werten":"Doch als falsch werten"}</button>`:""}<button class="btn pri" data-a="${k}${f?"next":"check"}">${f?"Weiter":"Prüfen"}</button></div>`}
+function endT(k){const R=(k==="v"?vr:tr).res,t=R.g+R.o+R.r||1;return`<h1>Runde geschafft</h1>${R.r===0&&R.o===0&&R.g>0?'<span class="perfect"></span>':""}${(R.g+R.o)/t>=.7?'<div class="thumb">👍</div>':""}<div class="stats"><div><b style="color:var(--green)">${R.g}</b>richtig</div><div><b style="color:var(--amber)">${R.o}</b>${k==="v"?"fast":"teilweise"}</div><div><b style="color:var(--red)">${R.r}</b>falsch</div></div><p class="mute" style="margin-top:.8rem">Falsche und teilweise richtige Einträge wurden am Ende nochmal abgefragt. Schwierige kommen in neuen Runden häufiger vor.</p><button class="btn pri" data-a="${k}quit">Neue Runde</button>`}
 
 /* ===== Infos (Dokument-Ansicht) ===== */
 const IL=s=>E(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
@@ -995,14 +1057,15 @@ function docOf(e){const T=e.t||[],Q=e.q||[],tp=topics(e),own=Array.isArray(e.doc
  if(e.doc_auto!==false){
   if((e.merk||[]).length)out.push({h:"Merksätze",l:2},{ul:e.merk});
   if((e.falle||[]).length)out.push({h:"Typische Fehler",l:2},{ul:e.falle});
-  const wt=tp.filter(t=>T.some(x=>x[0]===t));if(wt.length){out.push({h:"Alle Begriffe nach Thema",l:2});wt.forEach(t=>out.push({h:t,l:3},{table:{head:["Begriff","Erklärung"],rows:T.filter(x=>x[0]===t&&x.length>=3).map(x=>[x[1],x[2]])}}))}}
+  const wt=e.kind==="vokabeln"?[]:tp.filter(t=>T.some(x=>x[0]===t));if(wt.length){out.push({h:"Alle Begriffe nach Thema",l:2});wt.forEach(t=>out.push({h:t,l:3},{table:{head:["Begriff","Erklärung"],rows:T.filter(x=>x[0]===t&&x.length>=3).map(x=>[x[1],x[2]])}}))}}
  return out}
-function vInfo(){const list=FX().filter(e=>(e.q||[]).length||(e.t||[]).length||e.doc||DOCS[e.id]),head=`<h1>Infos</h1>${lockBar()}`;
- if(!list.length)return head+emptyFach();
+function vInfo(){const ce=cur(),list=ce&&caps(ce).info?[ce]:[],head=`<h1>Infos</h1>${lockBar()}`;
+ if(!ce)return head+emptyFach();
+ if(!list.length)return head+examChips()+`<div class="card">Für diese Arbeit gibt es keine Infos.</div>`;
  const toc=[];let html="";
  list.forEach((e,xi)=>{let n=0;html+=`<h2 class="dh ex" id="ex${xi}">${E(e.title)}</h2>`;if(list.length>1)toc.push([`ex${xi}`,e.title]);
   for(const b of docOf(e)){let id="";if(b&&b.h!=null){id=`s${xi}-${n++}`;if(b.l!==3)toc.push([id,b.h])}html+=rb(b,id)}});
- return`<div id="rp"></div>${head}<p class="mute">Zusammenfassungen, Tabellen und Stoffübersichten zu ${E(st.set.fach)}.</p><div class="toc">${toc.map(([id,t])=>`<button class="chip" data-a="jump" data-v="${id}">${E(t)}</button>`).join("")}</div><article class="paper">${html}</article>`}
+ return`<div id="rp"></div>${head}${examChips()}<p class="mute">Zusammenfassung, Tabellen und Stoffübersicht zur aktiven Arbeit.</p><div class="toc">${toc.map(([id,t])=>`<button class="chip" data-a="jump" data-v="${id}">${E(t)}</button>`).join("")}</div><article class="paper">${html}</article>`}
 addEventListener("scroll",()=>{if(st.view!=="info")return;requestAnimationFrame(()=>{const el=$("#rp");if(!el)return;const h=document.documentElement.scrollHeight-innerHeight;el.style.width=(h>0?Math.min(100,scrollY/h*100):0)+"%"})},{passive:true});
 
 /* ===== Optionen ===== */
@@ -1026,7 +1089,7 @@ function vSet(){const s=st.set,det=(k,t,body)=>`<details class="card grp" data-k
   ${tg("shuffle","Antworten mischen")}
   ${sg("Standard-Modus","mode",[["training","Training"],["exam","Prüfung"]])}
   ${tg("sound","Ton","Kurzer Klang bei richtig und falsch")}
-  ${tg("haptic","Vibration","Rückmeldung am Handy")}
+  ${tg("haptic","Vibration / Haptisches Feedback","Kurzes Vibrieren bei Tipps und Erfolgen")}
   ${tg("remind","Streak-Erinnerung","Hinweis auf der Startseite, wenn dein Streak heute endet")}</div>
  ${det("exd","Klassenarbeiten-Termine",`<div class="sr col"><div class="row"><select id="xf" style="margin:0">${FACH.map(f=>`<option ${f===s.fach?"selected":""}>${f}</option>`).join("")}</select><input type="date" id="xd" style="margin:0"><input id="xt" placeholder="Titel (optional)" style="margin:0"></div>${isAdm()?`<label class="chk"><input type="checkbox" id="xg">Termin für alle verfassen (Global)</label>${ui.xerr?`<p class="mute">${E(ui.xerr)}</p>`:""}`:""}<button class="btn sm" style="margin-top:.6rem" data-a="addexd">Termin hinzufügen</button></div>${(st.exd||[]).map((x,i)=>`<div class="hist"><span>${E(x.f)} · ${E(x.d)}${x.t?" · "+E(x.t):""}</span><button class="chip" data-a="delexd" data-v="${i}">Löschen</button></div>`).join("")}${GX.length?`<div style="margin-top:.8rem"><b>Termine für alle</b>${GX.map(x=>`<div class="hist"><span>${E(x.f)} · ${E(x.d)}${x.t?" · "+E(x.t):""}</span>${isAdm()?`<button class="chip" data-a="delgx" data-v="${E(x.id)}">${ui.gxd===x.id?"Wirklich löschen?":"Löschen"}</button>`:""}</div>`).join("")}</div>`:""}`)}
  ${st.custom.length?det("old","Eigene Klausuren (alt)",`<p class="mute">Früher selbst importierte Klausuren. Neue Klassenarbeiten kommen automatisch von der Lehrkraft/dem Admin.</p>${st.custom.map(e=>`<div class="hist"><span>${E(e.title)}<br><small class="mute">${E(e.fach||"")}</small></span><button class="chip" data-a="delx" data-v="${E(e.id)}">Löschen</button></div>`).join("")}`):""}
@@ -1074,8 +1137,14 @@ async function doAuth(){const g=ui.am==="reg",e=$("#ae").value.trim(),p=$("#ap")
 function act(a,v){const s=st.set;
  if(a==="keep")return;
  if(a==="say"){say(v);return}
+ if(a==="rep"){report(v);return}
  if(a==="admtgl"){if(!isAdmin())return;st.set.adm=!st.set.adm;if(!st.set.adm&&(st.view==="dash"||st.view==="adm")){st.view="home";ui.ed=null}save();render();return}
- if(a==="godash"){if(!isAdm())return;st.view="dash";ui.msg="";ui.dmsg="";render();loadMembers();return}
+ if(a==="godash"){if(!isAdm())return;st.view="dash";ui.msg="";ui.dmsg="";render();loadMembers();loadReports();return}
+ if(a==="dtab"){ui.dtab=v;render();if(v==="err")loadReports();return}
+ if(a==="rload"){loadReports();return}
+ if(a==="rres"){if(isAdm())setRep(v);return}
+ if(a==="rdel"){if(isAdm())delRep(v);return}
+ if(a==="rf"){ui.rf=v;render();return}
  if(a==="mload"){loadMembers();return}
  if(a==="mreset"){if(isAdm())resetPw(v);return}
  if(a==="mdel"){if(isAdm()){ui.mdel=v;ui.mmsg="";render()}return}
@@ -1128,8 +1197,10 @@ function act(a,v){const s=st.set;
   Promise.race([sync(),new Promise(r=>setTimeout(r,4000))]).finally(()=>{au=null;try{localStorage.removeItem(AK);localStorage.removeItem(KEY);localStorage.removeItem(GK);localStorage.removeItem(GXK)}catch(e){}location.reload()});return}
  if(a==="close"){ui.modal=""}
  else if(a==="modal"){ui.modal=v}
- else if(a==="go"){st.view=v;ui.confirm=0;ui.lo=0;ui.msg="";ui.qmsg=""}
- else if(a==="exam"){s.exam=v;s.topics=[];vr=null;tr=null}
+ else if(a==="go"){st.view=v;ui.confirm=0;ui.lo=0;ui.msg="";ui.qmsg="";ui.vlist=false}
+ else if(a==="exam"){s.exam=v;s.topics=[];vr=null;tr=null;ui.vlist=false}
+ else if(a==="pickw"){s.exam=v;s.topics=[];vr=null;tr=null;ui.onlyWrong=false;ui.vWrong=false;ui.vlist=false}
+ else if(a==="vlist"){ui.vlist=!ui.vlist}
  else if(a==="topic"){v==="__all"?s.topics=[]:s.topics=s.topics.includes(v)?s.topics.filter(x=>x!==v):[...s.topics,v]}
  else if(a==="mode"){s.mode=v}
  else if(a==="count"){s.count=+v}
@@ -1138,8 +1209,8 @@ function act(a,v){const s=st.set;
  else if(a==="resume"){const re=st.run&&exams().find(e=>e.id===st.run.ex);if(re){s.fach=re.fach;s.exam=re.id}st.view="quiz"}
  else if(a==="resumeother"){const re=st.run&&exams().find(e=>e.id===st.run.ex);if(re){s.fach=re.fach;s.exam=re.id;s.topics=[]}}
  else if(a==="pick"){const r=st.run,id=r.ids[r.i];if(r.mode==="training"&&r.a[id]!==undefined)return;r.a[id]=+v;
-  if(r.mode==="training"){const q=QL(exams().find(e=>e.id===r.ex)||cur()).find(x=>x.id===id);if(q)rec(id,+v===q.a)}}
- else if(a==="chk"){const r=st.run,id=r.ids[r.i],q=QL(exams().find(e=>e.id===r.ex)||cur()).find(x=>x.id===id);if(!q)return;const v2=capAns(q);if(!v2||emptyAns(q,v2)){ui.hint="Bitte zuerst antworten.";render();return}ui.hint="";r.a[id]=v2;rec(id,okq(q,v2))}
+  if(r.mode==="training"){const q=QL(exams().find(e=>e.id===r.ex)||cur()).find(x=>x.id===id);if(q){r.phase===1?fb(+v===q.a):rec(id,+v===q.a)}}}
+ else if(a==="chk"){const r=st.run,id=r.ids[r.i],q=QL(exams().find(e=>e.id===r.ex)||cur()).find(x=>x.id===id);if(!q)return;const v2=capAns(q);if(!v2||emptyAns(q,v2)){ui.hint="Bitte zuerst antworten.";render();return}ui.hint="";r.a[id]=v2;r.phase===1?fb(okq(q,v2)):rec(id,okq(q,v2))}
  else if(a==="asg"){ui.assign=v}
  else if(a==="aclose"){ui.assign=""}
  else if(a==="asf"){const[id,f]=v.split("|");st.ov[id]={...(st.ov[id]||{}),fach:f,_t:Date.now()};s.fach=f;s.exam=id}
@@ -1149,7 +1220,11 @@ function act(a,v){const s=st.set;
   if(r.a[cid]===undefined)return;
   if(r.i+1<r.ids.length)r.i++;else{const ex=exams().find(e=>e.id===r.ex)||cur(),map=Object.fromEntries(QL(ex).map(x=>[x.id,x]));
    if(r.mode==="exam")r.ids.forEach(i=>map[i]&&rec(i,okq(map[i],r.a[i])));
-   r.done=true;st.hist.unshift({d:Date.now(),ex:r.ex,m:r.mode,n:r.ids.length,s:r.ids.filter(i=>map[i]&&okq(map[i],r.a[i])).length});st.hist=st.hist.slice(0,30)}}
+   const bad=r.mode==="training"&&r.phase!==1?r.ids.filter(i=>map[i]&&!okf(r,map[i],i)):[];
+   if(bad.length){r.res0={ids:[...r.ids],a:{...r.a},ov:{...(r.ov||{})}};r.ids=bad;r.a={};r.i=0;r.phase=1}
+   else{const R=R0(r);r.done=true;st.hist.unshift({d:Date.now(),ex:r.ex,m:r.mode,n:R.ids.length,s:R.ids.filter(i=>map[i]&&okf(R,map[i],i)).length});st.hist=st.hist.slice(0,30)}}}
+ else if(a==="flip"){const r=st.run;if(!r||r.phase===1)return;const id=r.ids[r.i],q=QL(exams().find(e=>e.id===r.ex)||cur()).find(x=>x.id===id);if(!q||r.a[id]===undefined)return;const was=okf(r,q,id);r.ov=r.ov||{};r.ov[id]=!was;if(r.mode==="training")fixRec(id,was,!was)}
+ else if(a==="rflip"){const r=st.run;if(!r||!r.done)return;const R=R0(r),q=QL(exams().find(e=>e.id===r.ex)||cur()).find(x=>x.id===v);if(!q)return;const was=okf(R,q,v);R.ov=R.ov||{};R.ov[v]=!was;fixRec(v,was,!was);const mp=Object.fromEntries(QL(exams().find(e=>e.id===r.ex)||cur()).map(x=>[x.id,x])),h=st.hist[0];if(h&&h.ex===r.ex&&h.n===R.ids.length)h.s=R.ids.filter(i=>mp[i]&&okf(R,mp[i],i)).length}
  else if(a==="quit"||a==="again"){st.run=null;ui.onlyWrong=false}
  else if(a==="tt"){ui.tt=v}
  else if(a==="tf"){ui.tf=v}
@@ -1162,7 +1237,7 @@ function act(a,v){const s=st.set;
  else if(a==="vstart"||a==="tstart"){startT(a[0])}
  else if(a==="vcheck"||a==="tcheck"){checkT(a[0])}
  else if(a==="vnext"||a==="tnext"){nextT(a[0])}
- else if(a==="tforce"){forceT()}
+ else if(a==="vflip"||a==="tflip"){flipT(a[0])}
  else if(a==="vquit"){vr=null;ui.vWrong=false}
  else if(a==="vwrong"){ui.vWrong=!ui.vWrong}
  else if(a==="tquit"){tr=null}
@@ -1186,11 +1261,12 @@ function imp(txt){try{let o=JSON.parse(txt);o=Array.isArray(o)?o:[o];
  ui.det.imp=true;ui.msg="Importiert (Fach/Rubrik über ⋯ änderbar): "+o.map(x=>x.title).join(", ")}catch(e){ui.det.imp=true;ui.msg=e===1?"Diese ID gehört zu einer eingebauten Klausur. Bitte andere ID wählen.":"Format nicht gültig. Nutze „Vorlage einfügen“."}
  save();render()}
 
-document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b||b.disabled)return;if(b.dataset.a==="close"&&e.target.closest(".modal>div")&&!e.target.closest("button"))return;act(b.dataset.a,b.dataset.v)});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b||b.disabled)return;if(b.dataset.a==="close"&&e.target.closest(".modal>div")&&!e.target.closest("button"))return;hap(8);act(b.dataset.a,b.dataset.v)});
 document.addEventListener("keydown",e=>{
  const run=st.view==="voc"?vr:st.view==="terms"&&ui.tmode==="quiz"?tr:null,k=st.view==="voc"?"v":"t";
  if(e.key==="Enter"&&!e.shiftKey&&run&&!run.done&&!e.isComposing&&e.target.id!=="ts"){e.preventDefault();act(k+(run.fb?"next":"check"));return}
- if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("term")){e.preventDefault();act("tt2",e.target.dataset.v)}});
+ if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("term")){e.preventDefault();act("tt2",e.target.dataset.v)}
+ if((e.key==="Enter"||e.key===" ")&&e.target.classList&&e.target.classList.contains("wk")){e.preventDefault();act("pickw",e.target.dataset.v)}});
 document.addEventListener("input",e=>{if(e.target.dataset&&e.target.dataset.ed){edIn(e.target);return}if(e.target.id==="mq"){ui.mq=e.target.value;const p=e.target.selectionStart;render();const n=$("#mq");n.focus();n.setSelectionRange(p,p);return}if(e.target.id==="edf"&&ui.ed){ui.ed.f=e.target.value;ui.ed.lim=30;const p=e.target.selectionStart;render();const n=$("#edf");n.focus();n.setSelectionRange(p,p);return}if(e.target.id==="nick"){st.set.nick=e.target.value.slice(0,20);save();return}if(e.target.id==="ts"){ui.tq=e.target.value;const p=e.target.selectionStart;render();const n=$("#ts");n.focus();n.setSelectionRange(p,p)}});
 document.addEventListener("change",e=>{if(e.target.id==="gfile"&&e.target.files[0]){const fl=e.target.files[0],f=new FileReader();f.onload=()=>gparse(f.result,fl.name);f.readAsText(fl);e.target.value="";return}if(e.target.id==="gfach"&&ui.gp){ui.gp.fach=e.target.value;return}if(e.target.id==="file"&&e.target.files[0]){const f=new FileReader();f.onload=()=>imp(f.result);f.readAsText(e.target.files[0])}});
 document.addEventListener("toggle",e=>{const d=e.target;if(d&&d.dataset&&d.dataset.k)ui.det[d.dataset.k]=d.open},true);
