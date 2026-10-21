@@ -239,6 +239,24 @@ textarea.edt{font-family:inherit;font-size:.95rem;min-height:84px;resize:vertica
 .vlh{margin:1rem 0 .2rem}.vlist .vli{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:1px solid var(--line)}.vlist .vli:last-child{border-bottom:0}.vlist .vli small{display:block;color:var(--mute)}
 .rep{padding:.7rem 0;border-bottom:1px solid var(--line)}.rep.resolved{opacity:.65}.rep p{margin:.3rem 0}.rep .rh{display:flex;justify-content:space-between;gap:.5rem;align-items:center}.rep .rh small{color:var(--mute)}
 .tiny{min-height:0!important;padding:.15rem .6rem!important;font-size:.75rem!important;cursor:default!important}
+
+.wbars{display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem;margin-top:.9rem;align-items:end}
+.wcol{border:0;background:none;padding:0;min-height:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.2rem;color:var(--mute);font-size:.78rem;-webkit-tap-highlight-color:transparent}
+.wcol b{font-weight:700}
+.wbar{display:flex;align-items:flex-end;width:100%;height:104px;border-radius:14px;background:color-mix(in srgb,var(--mute) 14%,transparent);overflow:hidden;border:1px solid color-mix(in srgb,#fff 40%,var(--line));transition:box-shadow .3s,transform .15s}
+.wcol:active .wbar{transform:scale(.96)}
+.wbar i{display:block;width:100%;border-radius:12px;background:linear-gradient(180deg,color-mix(in srgb,var(--blue) 62%,#fff),var(--blue));transition:height .6s cubic-bezier(.2,.9,.3,1)}
+.wcol.z .wbar{opacity:.6}
+.wcol.lo .wbar i{opacity:.55;box-shadow:0 0 12px color-mix(in srgb,var(--blue) 50%,transparent)}
+.wcol.hi .wbar i{box-shadow:0 0 18px color-mix(in srgb,var(--blue) 60%,transparent)}
+.wcol.fut{opacity:.4}
+.wcol.today .wbar{border-color:var(--blue);box-shadow:0 0 0 2px color-mix(in srgb,var(--blue) 28%,transparent),0 0 20px color-mix(in srgb,var(--blue) 45%,transparent)}
+.wcol.today b{color:var(--blue)}.wcol small{color:var(--blue);font-weight:700;font-size:.62rem;line-height:1}
+.wcol.sel b{text-decoration:underline;text-underline-offset:3px}
+.wdet{margin:.7rem 0 0;text-align:center}
+.lock b{display:inline-block;max-width:60vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+.card.wk:active,.chip:active,.btn:active{transform:scale(.985)}
+@media (prefers-reduced-motion:reduce){.wbar i{transition:none}}
 </style></head><body><div id="app"></div><nav id="nav"></nav>
 <script>
 /* ===== PLATZHALTER: hier später Impressum & Datenschutz eintragen ===== */
@@ -406,7 +424,7 @@ const CAP_IMG=DKI.standard;
 /* Dino für die Anmeldeseite: Datei "dino.png" (PNG mit transparentem Hintergrund) neben die index.html legen. Fehlt sie, erscheint ein Ersatz-Dino. */
 const DINO_IMG="dino.png";
 
-const norm=o=>{o=o&&typeof o==="object"&&!Array.isArray(o)?o:{};const s={ov:{},qs:{},tm:{},tmt:{},hist:[],custom:[],exd:[],days:[],dk:[],xlog:{},del:{},xp:0,rst:0,set_t:0,run:null,view:"home",...o};
+const norm=o=>{o=o&&typeof o==="object"&&!Array.isArray(o)?o:{};const s={ov:{},qs:{},tm:{},tmt:{},hist:[],custom:[],exd:[],days:[],dk:[],xlog:{},dh:{},del:{},xp:0,rst:0,set_t:0,run:null,view:"home",...o};
  for(const k of["ov","qs","tm","tmt","del"])if(!s[k]||typeof s[k]!=="object"||Array.isArray(s[k]))s[k]={};
  for(const k of["hist","custom","exd","days"])if(!Array.isArray(s[k]))s[k]=[];
  s.set={...D,...(s.set&&typeof s.set==="object"?s.set:{})};if(!FACH.includes(s.set.fach))s.set.fach="VBL";return s};
@@ -437,7 +455,7 @@ function merge(L,R){
  M.qs={};for(const k of new Set([...Object.keys(R.qs),...Object.keys(L.qs)])){const v=pk(L.qs[k],R.qs[k]);if(v&&(!rst||(v.t||0)>rst))M.qs[k]=v}
  M.tm={};M.tmt={};for(const k of new Set([...Object.keys(R.tm),...Object.keys(L.tm)])){const inL=k in L.tm,inR=k in R.tm,from=inL&&inR?((R.tmt[k]||0)>(L.tmt[k]||0)?R:L):inL?L:R,t=from.tmt[k]||0;if(rst&&t<=rst)continue;M.tm[k]=from.tm[k];M.tmt[k]=t}
  M.days=[...new Set([...R.days,...L.days])].filter(Boolean).sort().slice(-90);
- M.xp=Math.max(L.xp||0,R.xp||0);M.dk=[...new Set([...(R.dk||[]),...(L.dk||[])])];M.xlog={...R.xlog};for(const[k,v]of Object.entries(L.xlog||{}))M.xlog[k]=Math.max(M.xlog[k]||0,v);
+ M.xp=Math.max(L.xp||0,R.xp||0);M.dk=[...new Set([...(R.dk||[]),...(L.dk||[])])];M.xlog={...R.xlog};for(const[k,v]of Object.entries(L.xlog||{}))M.xlog[k]=Math.max(M.xlog[k]||0,v);M.dh={...(R.dh||{})};for(const[k,v]of Object.entries(L.dh||{}))M.dh[k]=Math.max(M.dh[k]||0,v);
  const hm=new Map();for(const h of[...R.hist,...L.hist])if(h&&h.d&&(!rst||h.d>rst))hm.set(h.d+"|"+h.ex,h);M.hist=[...hm.values()].sort((a,b)=>b.d-a.d).slice(0,30);
  const exk=x=>"e:"+x.f+"|"+x.d+"|"+(x.t||""),em=new Map();for(const x of[...R.exd,...L.exd])if(x&&x.d&&!gone(exk(x),x.mt))em.set(exk(x),x);M.exd=[...em.values()];
  M.set_t=Math.max(L.set_t||0,R.set_t||0);M.set={...D,...L.set};
@@ -557,8 +575,12 @@ function guideModal(){const n=ui.guide,g=GUIDE[n],last=n===GUIDE.length-1;
 const GXK="studiq-gexams";let GX=[];try{GX=JSON.parse(localStorage.getItem(GXK))||[]}catch(e){}if(!Array.isArray(GX))GX=[];
 async function loadGlobalExams(){const t=await tok();if(!t)return;
  const j=await sbj("/rest/v1/global_exams?select=id,subject,title,exam_date&order=exam_date.asc",{headers:H(t)});if(!Array.isArray(j))return;
- GX=j.map(r=>({id:r.id,f:r.subject,d:r.exam_date,t:r.title||"",g:1}));try{localStorage.setItem(GXK,JSON.stringify(GX))}catch(e){}}
-const allX=()=>[...GX,...(st.exd||[])];
+ GX=j.map(r=>({id:r.id,f:r.subject,d:r.exam_date,t:r.title||"",g:1}));const old=GX.filter(gxExp);GX=GX.filter(x=>!gxExp(x));try{localStorage.setItem(GXK,JSON.stringify(GX))}catch(e){}
+ /* Abgelaufene Termine (ab 12 Uhr am Prüfungstag) in der Datenbank entfernen; zuerst per Funktion, als Admin zur Not direkt */
+ if(old.length)tapi("/rest/v1/rpc/purge_expired_global_exams",{method:"POST",body:"{}"}).catch(()=>{if(isAdmin())return tapi("/rest/v1/global_exams?id=in.("+old.map(x=>x.id).join(",")+")",{method:"DELETE"}).catch(()=>{})})}
+const gxExp=x=>{const t=ld(Date.now());return x.d<t||(x.d===t&&new Date().getHours()>=12)};
+const gxl=()=>GX.filter(x=>!gxExp(x));
+const allX=()=>[...gxl(),...(st.exd||[])];
 const gxerr=e=>e.st===404?"Tabelle global_exams nicht gefunden. Bitte supabase_global_exams.sql im Supabase SQL Editor ausführen.":(e.st===401||e.st===403)?"Keine Berechtigung. Ist das Admin-Konto in app_admins eingetragen?":(e.message||"Unbekannter Fehler");
 function gAddX(d,f,t){const b={subject:f,title:t,exam_date:d};
  tapi("/rest/v1/global_exams",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify(b)}).then(()=>loadGlobalExams()).then(()=>{ui.msg="Globaler Termin gespeichert. Er erscheint bei allen Nutzern.";ui.dmsg=ui.msg}).catch(e=>{ui.msg="Fehler: "+gxerr(e)}).then(()=>{ui.det.exd=true;render()})}
@@ -645,7 +667,7 @@ function vDash(){if(!isAdm())return vHome();
   <div class="row"><select id="gxf" style="margin:0">${FACH.map(f=>`<option ${f===st.set.fach?"selected":""}>${E(f)}</option>`).join("")}</select><input type="date" id="gxd" style="margin:0"><input id="gxt" placeholder="Titel (optional)" style="margin:0"></div>
   <button class="btn pri bigbtn" style="min-height:52px" data-a="gaddx">Termin für alle eintragen</button>
   ${ui.dmsg?`<div class="box merk" style="margin-top:.7rem"><b>Hinweis</b>${E(ui.dmsg)}</div>`:""}
-  ${GX.length?`<div style="margin-top:.8rem"><b>Eingetragen (${GX.length})</b>${GX.map(x=>`<div class="hist"><span>${E(x.f)} · ${E(x.d)}${x.t?" · "+E(x.t):""}</span><button class="chip" data-a="delgx" data-v="${E(x.id)}">${ui.gxd===x.id?"Wirklich löschen?":"Löschen"}</button></div>`).join("")}</div>`:""}</div>
+  ${gxl().length?`<div style="margin-top:.8rem"><b>Eingetragen (${gxl().length})</b>${gxl().map(x=>`<div class="hist"><span>${E(x.f)} · ${E(x.d)}${x.t?" · "+E(x.t):""}</span><button class="chip" data-a="delgx" data-v="${E(x.id)}">${ui.gxd===x.id?"Wirklich löschen?":"Löschen"}</button></div>`).join("")}</div>`:""}</div>
  <div class="card grp"><div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem"><h3 style="margin:0">Alle Schüler${ui.mem?" ("+all.length+")":""}</h3><button class="btn sm" data-a="mload">${ui.mbusy?"Lädt …":"Aktualisieren"}</button></div>
   <p class="mute" style="margin:.3rem 0 0;font-size:.8rem">Nur für dich sichtbar. „24 h“ zeigt die gesammelten XP der letzten 24 Stunden (Lernminuten werden nicht erfasst).</p>
   ${ui.mmsg?`<div class="box merk" style="margin-top:.6rem"><b>Hinweis</b>${E(ui.mmsg)}</div>`:""}
@@ -678,6 +700,11 @@ const ldY=()=>ld(Date.now()-864e5);
 function eff(r){const h=Math.floor(Date.now()/36e5);let x24=0;for(const[k,v]of Object.entries(r.xlog||{}))if(+k>h-24)x24+=v;
  return{...r,sk:r.last_day&&r.last_day>=ldY()?r.streak:0,x24}}
 const MED=["gold","silber","bronze"];
+function weekCard(){const now=new Date(),dow=(now.getDay()+6)%7,mon=new Date(now);mon.setDate(now.getDate()-dow);
+ const N=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],S=["Mo","Di","Mi","Do","Fr","Sa","So"],today=ld(now),
+ days=[...Array(7)].map((_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);const k=ld(d);return{k,i,xp:(st.dh||{})[k]||0,fut:k>today,today:k===today}}),
+ mx=Math.max(60,...days.map(x=>x.xp)),tot=days.reduce((a,x)=>a+x.xp,0),sel=days.find(x=>x.k===ui.wk)||days.find(x=>x.today);
+ return`<div class="card grp wk7"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3 style="margin:0">Diese Woche</h3><span class="mute"><b>${tot}</b> XP</span></div><div class="wbars">${days.map(x=>`<button type="button" class="wcol ${x.today?"today":""} ${x.fut?"fut":""} ${sel&&sel.k===x.k?"sel":""} ${x.xp===0?"z":x.xp<=50?"lo":"hi"}" data-a="wday" data-v="${x.k}" title="${N[x.i]}: ${x.xp} XP" aria-label="${N[x.i]}: ${x.xp} XP${x.today?" (heute)":""}"><span class="wbar"><i style="height:${x.xp?Math.max(10,Math.round(100*x.xp/mx)):0}%"></i></span><b>${S[x.i]}</b>${x.today?"<small>Heute</small>":"<small>&nbsp;</small>"}</button>`).join("")}</div><p class="wdet">${sel?N[sel.i]+": <b>"+sel.xp+" XP</b>":""}</p></div>`}
 function boardRows(){const k=ui.tsort==="xp"?"xp":"sk",o=k==="xp"?"sk":"xp";
  return(ui.board||[]).map(eff).sort((a,b)=>b[k]-a[k]||b[o]-a[o]||String(a.nick).localeCompare(b.nick))}
 function teamDetail(c){const rows=boardRows(),k=ui.tsort==="xp"?"xp":"sk",own=c.created_by===au.id,cf=ui.tc2===c.id;
@@ -714,7 +741,7 @@ const track=()=>{lastSetH=setH();lastJ=jx()};
 const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
 const push=()=>{clearTimeout(pt);pt=setTimeout(sync,1500)};
 const save=()=>{const h=setH();if(h!==lastSetH){lastSetH=h;st.set_t=Date.now()}persist();const j=jx();if(j===lastJ)return;lastJ=j;st.ts=Date.now();dirty=true;persist();if(au)push()};
-const sig=()=>JSON.stringify([st.days,st.dk,st.xp,st.custom.map(e=>e.id+":"+e.mt),st.ov,st.exd.length,Object.keys(st.qs).length,Object.keys(st.tm).length,SYNCSET.map(k=>st.set[k]),GL.map(e=>e.id+":"+e.gt),GX.map(e=>e.id)]);
+const sig=()=>JSON.stringify([st.days,st.dk,st.xp,st.custom.map(e=>e.id+":"+e.mt),st.ov,st.exd.length,Object.keys(st.qs).length,Object.keys(st.tm).length,SYNCSET.map(k=>st.set[k]),GL.map(e=>e.id+":"+e.gt),GX.map(e=>e.id),Object.values(st.dh||{}).reduce((a,b)=>a+b,0)]);
 /* Ablauf: 1) Cloud-Stand laden  2) mit lokalem Stand zusammenführen  3) nur wenn nötig zurückschreiben
    Das Zurückschreiben ist an den zuletzt gelesenen updated_at-Wert geknüpft. Hat ein anderes Gerät in der Zwischenzeit gespeichert,
    wird neu geladen, erneut zusammengeführt und wiederholt. So kann kein Gerät ein anderes überschreiben. */
@@ -805,7 +832,7 @@ function confetti(n){try{if(st.set.anim===false||matchMedia("(prefers-reduced-mo
   if(alive&&t-t00<4500)requestAnimationFrame(f);else c.remove()})(t00)}catch(e){}}
 let AC;function fb(ok){const s=st.set;hap(ok?18:[35,50,35]);
  if(s.sound)try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain(),n=AC.currentTime;o.type="sine";o.frequency.value=ok?880:220;g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(.15,n+.02);g.gain.exponentialRampToValueAtTime(.0001,n+(ok?.18:.3));o.connect(g);g.connect(AC.destination);o.start();o.stop(n+.32)}catch(e){}}
-function addXp(n){st.xp=(st.xp||0)+n;const h=Math.floor(Date.now()/36e5);st.xlog=st.xlog||{};st.xlog[h]=(st.xlog[h]||0)+n;for(const k of Object.keys(st.xlog))if(+k<h-72)delete st.xlog[k]}
+function addXp(n){st.xp=(st.xp||0)+n;{const d=ld(Date.now()),o=ld(Date.now()-70*864e5);st.dh=st.dh||{};st.dh[d]=Math.max(0,(st.dh[d]||0)+n);for(const k of Object.keys(st.dh))if(k<o)delete st.dh[k]}const h=Math.floor(Date.now()/36e5);st.xlog=st.xlog||{};st.xlog[h]=(st.xlog[h]||0)+n;for(const k of Object.keys(st.xlog))if(+k<h-72)delete st.xlog[k]}
 const XPV={q:6,v:5,t:5};/* XP pro richtiger Antwort: Quiz / Vokabel / Begriff */
 const okf=(R,q,id)=>R.ov&&id in R.ov?R.ov[id]:okq(q,R.a[id]);
 const R0=r=>r.res0||r;
@@ -852,7 +879,7 @@ const caps=e=>{if(!e)return{quiz:0,voc:0,terms:0,info:0};const q=(e.q||[]).lengt
 const TABS=[["home","Start"],["quiz","Quiz"],["voc","Vokabeln"],["terms","Begriffe"],["info","Infos"],["set","Optionen"]];
 function nav(){const v=st.view;if(v==="auth"){$("#nav").innerHTML="";return}
  $("#nav").innerHTML=TABS.map(([k,l])=>{const cp=caps(cur()),off=k in cp&&!cp[k]||k==="voc"&&!isLang();return`<button class="${v===k?"on":""}" data-a="go" data-v="${k}" ${off?`disabled aria-disabled="true" title="${k==="voc"&&!isLang()?"Nur bei Sprachfächern (Spanisch, Englisch)":"Kein Inhalt in der aktiven Arbeit"}"`:""}><svg viewBox="0 0 24 24" aria-hidden="true">${IC[k]}</svg><span>${l}</span></button>`}).join("")}
-const lockBar=()=>{const c=cur();return`<div class="lock"><span>Fach:</span> <b>${E(st.set.fach)}</b>${c?` <span>· Arbeit:</span> <b>${E(c.title)}</b>`:""} <button data-a="go" data-v="home">auf der Startseite ändern</button></div>`};
+const lockBar=()=>`<div class="lock"><b>${E(st.set.fach)}</b> <button data-a="go" data-v="home">ändern</button></div>`;
 const examChips=()=>"";const examChipsOld=()=>{const l=FX(),c=cur();return l.length>1&&c?`<h2>Klausur</h2>${chips(l.map(e=>[e.id,e.title]),v=>v===c.id,"exam")}`:""};
 const emptyFach=()=>`<div class="card">Für <b>${E(st.set.fach)}</b> gibt es noch keine Inhalte. Neue Klassenarbeiten erscheinen hier automatisch, sobald sie veröffentlicht wurden. Du kannst auf der Startseite ein anderes Fach wählen.</div><div class="row"><button class="btn" data-a="go" data-v="home">Zur Startseite</button></div>`;
 function syncPill(sh){const u=ui.sync,d=sh?' data-s="1"':"";
@@ -894,7 +921,7 @@ function assignModal(){const e=exams().find(x=>x.id===ui.assign);if(!e)return"";
 
 /* ===== Start ===== */
 function fachPanel(){const f=st.set.fach,list=exams().filter(e=>e.fach===f),lang=LANG.includes(f),c0=cur();
- return`<h2 class="fh" style="margin-top:.4rem">${E(f)}</h2><p class="mute" style="margin-top:-.3rem">Wähle eine Arbeit aus. Danach zeigen die Reiter nur noch ihren Inhalt.</p>`+KINDS.filter(k=>k[0]!=="vokabeln"||lang||list.some(e=>e.kind==="vokabeln")).map(([k,l])=>{const xs=list.filter(e=>(e.kind||"test")===k);
+ return``+KINDS.filter(k=>k[0]!=="vokabeln"||lang||list.some(e=>e.kind==="vokabeln")).map(([k,l])=>{const xs=list.filter(e=>(e.kind||"test")===k);
   return`<h2>${l}</h2>`+(xs.length?xs.map(e=>{const on=!!c0&&c0.id===e.id;
    return`<div class="card wk ${on?"sel":""}" data-a="pickw" data-v="${E(e.id)}" role="button" tabindex="0" aria-pressed="${on}"><div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem"><b>${on?"✓ ":""}${E(e.title)}</b><span style="display:flex;gap:.4rem">${isAdm()&&e.g&&on?`<button class="chip" data-a="gedit" data-v="${E(e.gid)}">Bearbeiten</button>`:""}${e.g?"":`<button class="chip" data-a="asg" data-v="${E(e.id)}" aria-label="Zuordnen">⋯</button>`}</span></div></div>`}).join(""):`<p class="mute">Noch keine Inhalte</p>`)}).join("")}
 function vHome(){const s=st.set,run=st.run&&!st.run.done?st.run:null,ts=allX().filter(x=>dleft(x.d)>=0).sort((a,b)=>a.d<b.d?-1:1),all=Object.values(st.qs),r=all.reduce((a,x)=>a+x.r,0),w=all.reduce((a,x)=>a+x.w,0),wk={},
@@ -909,7 +936,7 @@ function vHome(){const s=st.set,run=st.run&&!st.run.done?st.run:null,ts=allX().f
  ${run?`<button class="btn pri" style="margin-top:.8rem" data-a="resume">Quiz fortsetzen (${run.i+1}/${run.ids.length})</button>`:""}
  <div class="box merk"><b>Empfehlung</b>${E(tip)}</div>
  <h2>Klassenarbeiten</h2>${ts[0]?cdCard(ts[0]):""}<div class="card">${ts.length?ts.slice(0,4).map(x=>`<div class="hist"><span>${E(x.f)}${x.t?" · "+E(x.t):""}${x.g?" · für alle":""}</span><b>${dleft(x.d)?"in "+dleft(x.d)+" Tagen":"Heute!"}</b></div>`).join(""):`<span class="mute">Keine Termine. Trage sie unter „Optionen“ ein.</span>`}</div>
- <h2>Fach wählen</h2><p class="mute" style="margin-top:-.4rem">Gilt für die ganze App: Quiz, Vokabeln, Begriffe und Infos zeigen nur dieses Fach.</p><div class="wwrap"><div class="wheel" id="wh" role="listbox" tabindex="0" aria-label="Fach">${FACH.map(f=>`<div class="wi" role="option" data-i="${FACH.indexOf(f)}">${E(f)}</div>`).join("")}</div></div><div id="fp">${fachPanel()}</div>`}
+ <h2>Fach wählen</h2><div class="wwrap"><div class="wheel" id="wh" role="listbox" tabindex="0" aria-label="Fach">${FACH.map(f=>`<div class="wi" role="option" data-i="${FACH.indexOf(f)}">${E(f)}</div>`).join("")}</div></div><div id="fp">${fachPanel()}</div>`}
 /* Karussell: große Treffer-Fläche, Snap, Skalierung per rAF, Maus-Ziehen, Tastatur */
 function wheel(){const w=$("#wh");if(!w||!w.firstElementChild)return;const IH=w.firstElementChild.offsetHeight||58;let tm,raf=0,last=-1,drag=null,moved=0;
  const frame=()=>{raf=0;const c=w.scrollTop/IH;let k=Math.max(0,Math.min(FACH.length-1,Math.round(c)));
@@ -983,7 +1010,7 @@ function vTerms(){const ex=cur(),head=`<h1>Begriffe</h1>${lockBar()}`;
  <p class="mute">${list.length} Begriffe</p><div class="grid">${list.map(x=>`<div class="card term ${st.tm[x.id]||""} ${ui.open[x.id]?"open":""}" tabindex="0" data-a="tt2" data-v="${x.id}"><h3><span>${E(x.n)}</span><span class="mute">${ui.open[x.id]?"–":"+"}</span></h3><div class="d"><p>${E(x.d)}</p><div class="row" style="margin-top:.6rem;align-items:center">${TTSL[st.set.fach]?spkBtn(x.n,1):""}<button class="chip" data-a="mark" data-v="${x.id}|k">Gewusst</button><button class="chip" data-a="mark" data-v="${x.id}|n">Nochmal</button></div></div></div>`).join("")||`<p class="mute">Nichts gefunden.</p>`}</div>`}
 function vTermQuiz(ex){if(tr&&!tr.done)return runT("t");if(tr&&tr.done)return endT("t");
  const s=st.set,tp=topics(ex).filter(t=>(ex.t||[]).some(x=>x[0]===t));
- return`${examChips()}<p class="mute">Aktiver Abfragemodus: Du schreibst, ohne die Antwort zu sehen. Richtig beantwortete Begriffe werden als „Gewusst“ markiert.</p>
+ return`${examChips()}
  ${ui.qmsg?`<div class="box falle"><b>Hinweis</b>${E(ui.qmsg)}</div>`:""}
  <h2>Richtung</h2>${chips([["d2n","Erklärung ➔ Begriff schreiben"],["n2d","Begriff ➔ Erklärung schreiben"]],v=>s.tdir===v,"tdir")}
  <h2>Themen</h2>${chips([["__all","Alle"],...tp.map(x=>[x,x])],v=>v==="__all"?!s.topics.length:s.topics.includes(v),"topic")}
@@ -998,7 +1025,7 @@ function vVoc(){const head=`<h1>Vokabeln</h1>${lockBar()}`;
  if(!ex||!TL(ex).length)return head+examChips()+`<div class="card">Noch keine Vokabeln in ${E(st.set.fach)}. Importiere unter „Optionen“ eine Klausur mit Begriffen.</div>`;
  if(ui.vlist){const all=TL(ex),tp2=topics(ex).filter(t=>all.some(x=>x.t===t));return`${head}<button class="btn" data-a="vlist">← Zurück zum Training</button><h2>Vokabelliste · ${E(ex.title)}</h2><p class="mute">${all.length} Einträge</p>`+tp2.map(t=>`<h3 class="vlh">${E(t)}</h3><div class="card vlist">${all.filter(x=>x.t===t).map(x=>`<div class="vli"><span><b>${E(x.n)}</b><small>${E(x.d)}</small></span>${TTSL[st.set.fach]?spkBtn(x.n,1):""}</div>`).join("")}</div>`).join("")}
  const tp=topics(ex).filter(t=>(ex.t||[]).some(x=>x[0]===t)),vw=TL(ex).filter(x=>st.qs[x.id]&&st.qs[x.id].l===0).length;
- return`${head}<button class="btn" data-a="vlist" style="margin-bottom:.6rem">📋 Vokabelliste</button><p class="mute">${E(ex.title)}. Du tippst die Antwort ein.</p>${examChips()}
+ return`${head}<button class="btn" data-a="vlist" style="margin-bottom:.6rem">📋 Vokabelliste</button>${examChips()}
  ${ui.qmsg?`<div class="box falle"><b>Hinweis</b>${E(ui.qmsg)}</div>`:""}
  <h2>Richtung</h2>${chips([["es-de","Fremdsprache ➔ Deutsch"],["de-es","Deutsch ➔ Fremdsprache"]],v=>s.dir===v,"dir")}
  <h2>Themen</h2>${chips([["__all","Alle"],...tp.map(x=>[x,x])],v=>v==="__all"?!s.topics.length:s.topics.includes(v),"topic")}
@@ -1068,7 +1095,7 @@ function vInfo(){const ce=cur(),list=ce&&caps(ce).info?[ce]:[],head=`<h1>Infos</
  const toc=[];let html="";
  list.forEach((e,xi)=>{let n=0;html+=`<h2 class="dh ex" id="ex${xi}">${E(e.title)}</h2>`;if(list.length>1)toc.push([`ex${xi}`,e.title]);
   for(const b of docOf(e)){let id="";if(b&&b.h!=null){id=`s${xi}-${n++}`;if(b.l!==3)toc.push([id,b.h])}html+=rb(b,id)}});
- return`<div id="rp"></div>${head}${examChips()}<p class="mute">Zusammenfassung, Tabellen und Stoffübersicht zur aktiven Arbeit.</p><div class="toc">${toc.map(([id,t])=>`<button class="chip" data-a="jump" data-v="${id}">${E(t)}</button>`).join("")}</div><article class="paper">${html}</article>`}
+ return`<div id="rp"></div>${head}${examChips()}<div class="toc">${toc.map(([id,t])=>`<button class="chip" data-a="jump" data-v="${id}">${E(t)}</button>`).join("")}</div><article class="paper">${html}</article>`}
 addEventListener("scroll",()=>{if(st.view!=="info")return;requestAnimationFrame(()=>{const el=$("#rp");if(!el)return;const h=document.documentElement.scrollHeight-innerHeight;el.style.width=(h>0?Math.min(100,scrollY/h*100):0)+"%"})},{passive:true});
 
 /* ===== Optionen ===== */
@@ -1079,6 +1106,7 @@ function vSet(){const s=st.set,det=(k,t,body)=>`<details class="card grp" data-k
  return`<div class="sethead">${logoBtn()}<h1 style="margin:0;margin-right:auto">Einstellungen</h1>${au?`<button class="btn sm pri" data-a="syncnow">Synchronisieren</button>`:sbOn()?`<button class="btn sm pri" data-a="tologin">Anmelden</button>`:""}</div>
  <p class="mute" style="margin:.4rem 0 .2rem">${au?E(au.e)+" · "+syncPill():"Ohne Konto: Dein Stand bleibt nur auf diesem Gerät."}</p>
  <div class="card grp"><h3>Profil</h3><div class="sr col"><b style="font-weight:600;font-size:.95rem">Nickname</b><div class="in"><input id="nick" placeholder="Dein Nickname" maxlength="20" value="${E(s.nick||"")}" style="margin:0"></div></div></div>
+ ${weekCard()}
  ${dkCard()}
  <div class="card grp"><h3>Darstellung</h3>
   ${sg("Design","theme",[["auto","System"],["light","Hell"],["dark","Dunkel"]])}
@@ -1141,6 +1169,7 @@ function act(a,v){const s=st.set;
  if(a==="keep")return;
  if(a==="say"){say(v);return}
  if(a==="rep"){report(v);return}
+ if(a==="wday"){ui.wk=v;render();return}
  if(a==="admtgl"){if(!isAdmin())return;st.set.adm=!st.set.adm;if(!st.set.adm&&(st.view==="dash"||st.view==="adm")){st.view="home";ui.ed=null}save();render();return}
  if(a==="godash"){if(!isAdm())return;st.view="dash";ui.msg="";ui.dmsg="";render();loadMembers();loadReports();return}
  if(a==="dtab"){ui.dtab=v;render();if(v==="err")loadReports();return}
@@ -1275,6 +1304,8 @@ document.addEventListener("change",e=>{if(e.target.id==="gfile"&&e.target.files[
 document.addEventListener("toggle",e=>{const d=e.target;if(d&&d.dataset&&d.dataset.k)ui.det[d.dataset.k]=d.open},true);
 
 /* ===== Start ===== */
+/* einmalig: Tagesverlauf aus dem Stunden-Log der letzten 72 h füllen */
+(function(){if(st.dhs)return;st.dh=st.dh||{};const by={};for(const[k,v]of Object.entries(st.xlog||{})){const d=ld(+k*36e5);by[d]=(by[d]||0)+v}for(const[d,v]of Object.entries(by))if(st.dh[d]===undefined&&v>0)st.dh[d]=v;st.dhs=1})();
 if(!st.set.exam&&exams()[0])st.set.exam=exams()[0].id;
 try{const h=new URLSearchParams(location.hash.replace(/^#/,""));
  if(h.get("type")==="recovery"&&h.get("access_token")){ui.rec=h.get("access_token");ui.am="rec";au=null;try{localStorage.removeItem(AK)}catch(e){}st.view="auth";history.replaceState(null,"",location.pathname+location.search)}
