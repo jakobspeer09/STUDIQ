@@ -330,6 +330,45 @@ h1{letter-spacing:-.02em}h2{letter-spacing:-.01em}
 @media(max-width:440px){.top .pill.ok,.top .pill.err,.top .pill.busy{font-size:0;gap:0;padding:.2rem .55rem}}
 .tagrow{min-height:40px}
 .hist b{white-space:nowrap}
+
+/* ===== Update 8: Kalender, Hilfe, Melden ===== */
+[hidden]{display:none!important}
+.cnext{display:flex;align-items:center;gap:.8rem;width:100%;text-align:left;padding:.75rem .9rem;margin:.6rem 0 .2rem;border-radius:20px;border:1px solid color-mix(in srgb,var(--c) 35%,var(--line));background:color-mix(in srgb,var(--c) 12%,var(--card));cursor:pointer;box-shadow:var(--sh)}
+.cnext>span:nth-child(2){flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}.cnext small{color:var(--mute);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em}.cnext b{font-size:1rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cnext em{font-style:normal;font-weight:800;font-size:.82rem;color:var(--c)}
+.cbd{width:38px;height:38px;border-radius:12px;background:var(--c);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;flex:none}
+.cnav{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin:.8rem 0 .6rem}.cnav .cm{text-align:center;flex:1}.cnav .cm h2{margin:0;font-size:1.45rem;letter-spacing:-.01em}.cnav .cm small{color:var(--mute);font-weight:700;letter-spacing:.06em}
+.cnav button{width:46px;height:46px;border-radius:50%;border:1px solid var(--bd,var(--line));background:var(--gl2,var(--card));font-size:1.35rem;font-weight:800;cursor:pointer;display:grid;place-items:center;padding:0;box-shadow:inset 0 1px 0 var(--hi,transparent)}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;padding:.7rem;border-radius:26px;background:var(--gl2,var(--card));border:1px solid var(--bd,var(--line));box-shadow:var(--sh)}
+.cgrid .ph{text-align:center;font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);padding:.15rem 0 .35rem}
+.cdy{position:relative;aspect-ratio:1/1.12;min-height:52px;min-width:0;border-radius:15px;border:1.5px solid transparent;background:color-mix(in srgb,var(--ink) 4%,transparent);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;padding:5px 2px 3px;cursor:pointer;font-weight:700;transition:transform .12s,background .2s}
+.cdy.e{visibility:hidden;border:0;background:none;pointer-events:none}.cdy i{font-style:normal;font-size:.86rem;line-height:1;width:24px;height:24px;display:grid;place-items:center;border-radius:50%}
+.cdy.wk i{color:var(--mute)}.cdy:active{transform:scale(.94)}
+.cdy.fer{background:color-mix(in srgb,#14b8a6 17%,transparent)}.cdy.frd{background:color-mix(in srgb,#f59e0b 20%,transparent)}
+.cdy.today i{background:var(--blue);color:var(--onblue)}
+.cdy.sel{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 12%,transparent)}
+.cdy .pk{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;align-items:center}.cdy .pk b{background:var(--c);color:#fff;font-size:.62rem;min-width:19px;height:17px;line-height:17px;border-radius:6px;text-align:center;padding:0 3px;font-weight:800}.cdy .pk em{font-style:normal;font-size:.58rem;color:var(--mute);font-weight:700}
+.ctd{margin:.7rem 0 0;display:flex;justify-content:center}
+.cdet{padding:1.1rem 1rem}.cdh small{color:var(--mute);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:.72rem}.cdh h2{margin:.1rem 0 .5rem;font-size:1.3rem}
+.pfe{display:flex;align-items:center;gap:.7rem;padding:.55rem .75rem;margin:.4rem 0;border-radius:14px;background:color-mix(in srgb,#14b8a6 13%,var(--card));border:1px solid color-mix(in srgb,#14b8a6 30%,var(--line))}.pfe small{display:block;color:var(--mute);font-size:.76rem}.pfe div{flex:1}.pfe span{font-size:1.3rem}.pfe .chip{margin-left:auto;min-height:36px}
+.cempty{text-align:center;padding:.8rem 0}
+.cev{position:relative;display:flex;gap:.8rem;padding:.85rem .85rem .85rem 1rem;margin:.6rem 0;border-radius:18px;background:color-mix(in srgb,var(--c) 9%,var(--card));border:1px solid color-mix(in srgb,var(--c) 28%,var(--line));overflow:hidden}
+.cev::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--c)}.cev .cbody{flex:1;min-width:0}
+.ctop{display:flex;align-items:center;justify-content:space-between;gap:.5rem}.cfach{font-size:1.12rem;font-weight:800}.cpill{font-size:.74rem;font-weight:800;padding:.15rem .6rem;border-radius:99px;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c);white-space:nowrap}
+.ctit{font-weight:600;margin-top:.1rem}.cact{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.55rem}.cact .chip{min-height:38px}
+.cadd{margin-top:.8rem;text-align:center;border-style:dashed}
+.cf{margin-top:.9rem;padding:.9rem;border-radius:20px;background:color-mix(in srgb,var(--ink) 4%,transparent);border:1px solid var(--line);display:flex;flex-direction:column;gap:.7rem}
+.cs-wrap{display:flex;flex-wrap:wrap;gap:.4rem}.cs{min-height:38px;padding:.25rem .8rem;border-radius:99px;border:1.5px solid color-mix(in srgb,var(--c) 45%,var(--line));background:transparent;color:var(--ink);font-weight:700;font-size:.85rem;cursor:pointer}.cs.on{background:var(--c);border-color:var(--c);color:#fff}
+.cin{width:100%;min-height:46px;border-radius:14px;border:1px solid var(--line);background:var(--card);padding:.5rem .8rem;margin:0}
+/* Hilfe-Button und Hilfe-Box */
+.flag.help{font-weight:800;font-size:1rem;color:var(--blue)}.flag.help.on{background:var(--blue);color:var(--onblue);border-color:var(--blue)}
+.hbox p{margin:.25rem 0;font-size:.92rem}
+.acts{display:flex;gap:.4rem;align-items:center}
+/* Melden */
+.repm{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.5);display:grid;place-items:center;padding:1rem;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.repc{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:1.1rem;width:100%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,.35)}.repc h3{margin:0 0 .2rem}
+.repc textarea{font-family:inherit;font-size:1rem;width:100%;margin:.7rem 0;border-radius:14px;border:1px solid var(--line);background:var(--bg);padding:.7rem .8rem;resize:vertical;min-height:96px}
+.repb{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}.repb .btn{text-align:center}
+.repmsg{margin:.2rem 0 .4rem;padding:.55rem .75rem;border-radius:12px;background:var(--amberBg);border-left:4px solid var(--amber);white-space:pre-wrap}
 </style></head><body><div id="app"></div><nav id="nav"></nav>
 <script>
 /* ===== PLATZHALTER: hier später Impressum & Datenschutz eintragen ===== */
@@ -497,11 +536,18 @@ const CAP_IMG=DKI.standard;
 /* Dino für die Anmeldeseite: Datei "dino.png" (PNG mit transparentem Hintergrund) neben die index.html legen. Fehlt sie, erscheint ein Ersatz-Dino. */
 const DINO_IMG="dino.png";
 
+/* XP: Gesamt = Basis (xb) + Summe der Zähler je Gerät (xg). Zähler wachsen nur, beim Zusammenführen gilt je Gerät das Maximum.
+   So gehen offline gesammelte XP nie verloren und Geräte überschreiben sich nicht. Zusätzlich liegt ein winziger Sicherungsstand in einem eigenen Schlüssel. */
+const XPK="studiq-xpk";
+const DEV=(()=>{try{let d=localStorage.getItem("studiq-dev");if(!d){d=Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);localStorage.setItem("studiq-dev",d)}return d}catch(e){return"m"+Math.random().toString(36).slice(2,8)}})();
+function xpFix(s){if(typeof s.xb!=="number"||!isFinite(s.xb)||s.xb<0)s.xb=Math.max(0,+s.xp||0);if(!s.xg||typeof s.xg!=="object"||Array.isArray(s.xg))s.xg={};let t=s.xb;for(const k of Object.keys(s.xg)){const v=+s.xg[k];if(!isFinite(v)||v<0)s.xg[k]=0;else{s.xg[k]=v;t+=v}}s.xp=t;return s}
+const xpSave=()=>{try{localStorage.setItem(XPK,JSON.stringify({b:st.xb,g:st.xg}))}catch(e){}};
 const norm=o=>{o=o&&typeof o==="object"&&!Array.isArray(o)?o:{};const s={ov:{},qs:{},tm:{},tmt:{},hist:[],custom:[],exd:[],days:[],dk:[],xlog:{},dh:{},del:{},star:{},xp:0,rst:0,set_t:0,run:null,view:"home",...o};
  for(const k of["ov","qs","tm","tmt","del","star"])if(!s[k]||typeof s[k]!=="object"||Array.isArray(s[k]))s[k]={};
  for(const k of["hist","custom","exd","days"])if(!Array.isArray(s[k]))s[k]=[];
- s.set={...D,...(s.set&&typeof s.set==="object"?s.set:{})};if(!FACH.includes(s.set.fach))s.set.fach="VBL";return s};
+ s.set={...D,...(s.set&&typeof s.set==="object"?s.set:{})};if(!FACH.includes(s.set.fach))s.set.fach="VBL";return xpFix(s)};
 let st;try{st=norm(JSON.parse(localStorage.getItem(KEY)))}catch(e){st=norm({})}
+try{const k=JSON.parse(localStorage.getItem(XPK));if(k&&typeof k==="object"){st.xb=Math.max(st.xb||0,+k.b||0);for(const[a,v]of Object.entries(k.g||{}))if(+v>0)st.xg[a]=Math.max(st.xg[a]||0,+v);xpFix(st)}}catch(e){}
 
 /* ===== SUPABASE ===== */
 const SB={url:"https://vdfndfmmhsrsjrmmtpul.supabase.co",key:"sb_publishable_xMHrWBzI1BkBVU707wSBQA_doMlrlWR"};
@@ -529,7 +575,7 @@ function merge(L,R){
  M.tm={};M.tmt={};for(const k of new Set([...Object.keys(R.tm),...Object.keys(L.tm)])){const inL=k in L.tm,inR=k in R.tm,from=inL&&inR?((R.tmt[k]||0)>(L.tmt[k]||0)?R:L):inL?L:R,t=from.tmt[k]||0;if(rst&&t<=rst)continue;M.tm[k]=from.tm[k];M.tmt[k]=t}
  M.star={...(R.star||{})};for(const[k,v]of Object.entries(L.star||{}))if(Math.abs(v)>=Math.abs(M.star[k]||0))M.star[k]=v;
  M.days=[...new Set([...R.days,...L.days])].filter(Boolean).sort().slice(-90);
- M.xp=Math.max(L.xp||0,R.xp||0);M.dk=[...new Set([...(R.dk||[]),...(L.dk||[])])];M.xlog={...R.xlog};for(const[k,v]of Object.entries(L.xlog||{}))M.xlog[k]=Math.max(M.xlog[k]||0,v);M.dh={...(R.dh||{})};for(const[k,v]of Object.entries(L.dh||{}))M.dh[k]=Math.max(M.dh[k]||0,v);
+ M.xb=Math.max(L.xb||0,R.xb||0);M.xg={...(R.xg||{})};for(const[k,v]of Object.entries(L.xg||{}))M.xg[k]=Math.max(M.xg[k]||0,+v||0);xpFix(M);M.dk=[...new Set([...(R.dk||[]),...(L.dk||[])])];M.xlog={...R.xlog};for(const[k,v]of Object.entries(L.xlog||{}))M.xlog[k]=Math.max(M.xlog[k]||0,v);M.dh={...(R.dh||{})};for(const[k,v]of Object.entries(L.dh||{}))M.dh[k]=Math.max(M.dh[k]||0,v);
  const hm=new Map();for(const h of[...R.hist,...L.hist])if(h&&h.d&&(!rst||h.d>rst))hm.set(h.d+"|"+h.ex,h);M.hist=[...hm.values()].sort((a,b)=>b.d-a.d).slice(0,30);
  const exk=x=>"e:"+x.f+"|"+x.d+"|"+(x.t||""),em=new Map();for(const x of[...R.exd,...L.exd])if(x&&x.d&&!gone(exk(x),x.mt))em.set(exk(x),x);M.exd=[...em.values()];
  M.set_t=Math.max(L.set_t||0,R.set_t||0);M.set={...D,...L.set};
@@ -674,38 +720,21 @@ function toast(m){const d=document.createElement("div");d.className="toast";d.te
 function pickVoice(g,pref){let vs=[];try{vs=window.speechSynthesis?speechSynthesis.getVoices():[]}catch(e){}
  const lg=v=>String(v.lang||"").replace("_","-").toLowerCase(),ok=vs.filter(v=>lg(v).split("-")[0]===g);
  for(const p of pref){const v=ok.find(v=>lg(v)===p.toLowerCase());if(v)return v}return ok[0]||null}
-let ttsA=null,_sil=null,_ac=null,_silT=0;
+let ttsA=null;
 const IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
-function silentURL(){const n=8000,b=new Uint8Array(44+n),d=new DataView(b.buffer),w=(o,t)=>{for(let k=0;k<t.length;k++)b[o+k]=t.charCodeAt(k)};
- w(0,"RIFF");d.setUint32(4,36+n,true);w(8,"WAVEfmt ");d.setUint32(16,16,true);d.setUint16(20,1,true);d.setUint16(22,1,true);d.setUint32(24,8000,true);d.setUint32(28,8000,true);d.setUint16(32,1,true);d.setUint16(34,8,true);w(36,"data");d.setUint32(40,n,true);b.fill(128,44);
- return URL.createObjectURL(new Blob([b],{type:"audio/wav"}))}
-/* Muss synchron im Klick laufen: Seite als Medien-Wiedergabe markieren, damit der Stumm-Schalter die Ausgabe nicht blockiert */
-const HASAS=()=>{try{return!!navigator.audioSession}catch(e){return false}};
-/* Verhindert (soweit möglich) Sperrbildschirm-/Statusleisten-Player */
-const noMedia=()=>{try{const m=navigator.mediaSession;if(m){m.metadata=null;m.playbackState="none";for(const a of["play","pause","stop","seekbackward","seekforward","previoustrack","nexttrack","seekto"])try{m.setActionHandler(a,null)}catch(e){}}}catch(e){}};
-function unlockAudio(){
- try{if(navigator.audioSession)navigator.audioSession.type="playback"}catch(e){}
- try{const AC=window.AudioContext||window.webkitAudioContext;if(AC){if(!_ac)_ac=new AC();if(_ac.state!=="running")_ac.resume();const b=_ac.createBufferSource();b.buffer=_ac.createBuffer(1,1,22050);b.connect(_ac.destination);b.start(0)}}catch(e){}
- /* Stiller <audio>-Loop nur noch auf altem iOS ohne audioSession (er erzeugt den Sperrbildschirm-Player) */
- if(!IOS||HASAS())return;
- try{if(!_sil){_sil=new Audio(silentURL());_sil.loop=true;_sil.setAttribute("playsinline","")}
-  const p=_sil.play();if(p&&p.catch)p.catch(()=>{});clearTimeout(_silT);_silT=setTimeout(stopSil,20000);noMedia()}catch(e){}}
-function stopSil(){clearTimeout(_silT);try{_sil&&_sil.pause()}catch(e){}}
-function gtts(txt,g,fb){const a=new Audio("https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl="+g+"&q="+encodeURIComponent(txt.slice(0,200)));
- a.referrerPolicy="no-referrer";try{a.disableRemotePlayback=true}catch(e){}ttsA=a;let done=0;const bad=()=>{if(done)return;done=1;if(fb)fb();else{stopSil();toast("Aussprache ist auf diesem Gerät gerade nicht verfügbar.")}};
- a.onerror=bad;a.onplaying=noMedia;a.onended=()=>{stopSil();noMedia()};const p=a.play();if(p&&p.catch)p.catch(bad);noMedia()}
-function nat(txt,L,v){try{const u=new SpeechSynthesisUtterance(txt);u.voice=v;u.lang=v.lang;u.rate=.9;u.volume=1;let ok=0;u.onstart=()=>{ok=1};u.onend=stopSil;
- u.onerror=ev=>{ok=1;if(ev.error!=="canceled"&&ev.error!=="interrupted")gtts(txt,L.g);else stopSil()};speechSynthesis.speak(u);
- /* Wächter gegen stille Aussetzer (iOS/Chrome verschlucken manchmal die Äußerung) */
- setTimeout(()=>{try{if(!ok&&!speechSynthesis.speaking){speechSynthesis.cancel();gtts(txt,L.g)}}catch(e){}},1600);return true}catch(e){return false}}
+/* Einfach und robust: Systemstimme des Geräts in der Sprache des Fachs (wie am Anfang). Das Handy darf dafür nicht im Stumm-Modus sein.
+   Es wird immer das Fremdwort gesprochen. Nur wenn die Systemstimme gar nichts ausgibt, springt Google-TTS ein. */
+function gtts(txt,g){try{const a=new Audio("https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl="+g+"&q="+encodeURIComponent(txt.slice(0,200)));a.referrerPolicy="no-referrer";ttsA=a;const p=a.play();if(p&&p.catch)p.catch(()=>toast("Aussprache nicht verfügbar. Ist das Handy im Stumm-Modus?"))}catch(e){toast("Aussprache nicht verfügbar.")}}
+function speakNow(txt,L){const ss=window.speechSynthesis;if(!ss||typeof SpeechSynthesisUtterance==="undefined")return false;
+ try{const u=new SpeechSynthesisUtterance(txt),v=pickVoice(L.g,L.pref);u.lang=v&&v.lang?String(v.lang).replace("_","-"):L.pref[0];if(v)u.voice=v;u.rate=.9;u.pitch=1;u.volume=1;
+  let ok=0;u.onstart=()=>{ok=1};u.onend=()=>{ok=1};u.onerror=ev=>{ok=1;if(ev.error&&ev.error!=="canceled"&&ev.error!=="interrupted")gtts(txt,L.g)};
+  ss.speak(u);try{ss.resume()}catch(e){}
+  setTimeout(()=>{try{if(!ok&&!ss.speaking&&!ss.pending){ss.cancel();gtts(txt,L.g)}}catch(e){}},2500);return true}catch(e){return false}}
 function say(txt){const L=TTSL[st.set.fach];txt=String(txt||"").replace(/\([^)]*\)/g," ").replace(/\s+/g," ").trim();if(!L||!txt)return;
- unlockAudio();
- let busy=false;try{busy=speechSynthesis.speaking||speechSynthesis.pending}catch(e){}
- if(busy)try{speechSynthesis.cancel()}catch(e){}if(ttsA){try{ttsA.pause()}catch(e){}ttsA=null}
- const v=pickVoice(L.g,L.pref),go=()=>{if(v&&nat(txt,L,v))return;gtts(txt,L.g)};
- /* Alt-iOS ohne audioSession: <audio> ignoriert den Stumm-Schalter, Systemstimme nur als Rückfall */
- if(IOS&&!HASAS()){gtts(txt,L.g,v?()=>{nat(txt,L,v)||gtts(txt,L.g)}:null);return}
- if(busy)setTimeout(go,80);else go()}
+ if(ttsA){try{ttsA.pause()}catch(e){}ttsA=null}
+ let busy=false;try{busy=speechSynthesis.speaking||speechSynthesis.pending||speechSynthesis.paused}catch(e){}
+ const go=()=>{if(!speakNow(txt,L))gtts(txt,L.g)};
+ if(busy){try{speechSynthesis.cancel()}catch(e){}setTimeout(go,120)}else go()}
 
 /* ===== Admin-Dashboard ===== */
 const mterr=e=>e.st===404?"Funktion admin_user_overview nicht gefunden. Bitte supabase_admin_overview.sql im Supabase SQL Editor ausführen.":(e.st===401||e.st===403||/Kein Zugriff/.test(e.message||""))?"Kein Zugriff. Ist das Admin-Konto in app_admins eingetragen?":(e.message||"Unbekannter Fehler");
@@ -725,7 +754,7 @@ async function delRep(id){if(ui.rdc!==id){ui.rdc=id;render();return}ui.rdc="";tr
 function errView(){const L=ui.rl,f=ui.rf||"pending",nm=id=>{const m=(ui.mem||[]).find(x=>x.user_id===id);return m?(m.nick||m.email||"?"):String(id).slice(0,8)},dt=x=>new Date(x).toLocaleString("de-DE",{dateStyle:"short",timeStyle:"short"}),rows=(L||[]).filter(x=>f==="all"||x.status===f);
  return`<div class="card grp"><div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem"><h3 style="margin:0">Gemeldete Fehler</h3><button class="btn sm" data-a="rload">${ui.rbusy?"Lädt …":"Aktualisieren"}</button></div>${chips([["pending","Offen"],["resolved","Erledigt"],["all","Alle"]],v=>f===v,"rf")}
  ${ui.rerr?`<div class="box falle"><b>Hinweis</b>${E(ui.rerr)}</div>`:""}
- ${L?rows.length?rows.map(x=>`<div class="rep ${E(x.status)}"><div class="rh"><span class="chip tiny">${E(x.item_type)}</span><small>${E(dt(x.created_at))} · ${E(nm(x.user_id))}</small></div><p><b>${E(x.item_id_or_question)}</b></p>${x.message?`<p class="mute" style="font-size:.82rem">${E(x.message)}</p>`:""}<div class="row">${x.status==="pending"?`<button class="chip" data-a="rres" data-v="${E(x.id)}|resolved">✓ Erledigt</button>`:`<button class="chip" data-a="rres" data-v="${E(x.id)}|pending">↺ Wieder öffnen</button>`}<button class="chip dgr" data-a="rdel" data-v="${E(x.id)}">${ui.rdc===x.id?"Wirklich löschen?":"🗑️ Löschen"}</button></div></div>`).join(""):`<p class="mute">Keine Meldungen.</p>`:ui.rbusy?`<p class="mute">Lade …</p>`:""}</div>`}
+ ${L?rows.length?rows.map(x=>`<div class="rep ${E(x.status)}"><div class="rh"><span class="chip tiny">${E(x.item_type)}</span><small>${E(dt(x.created_at))} · ${E(nm(x.user_id))}</small></div>${(()=>{const m=String(x.message||""),i=m.indexOf("\n\n["),u=m.startsWith("[")?"":(i<0?m:m.slice(0,i)),c=m.startsWith("[")?m:(i<0?"":m.slice(i+2));return(u?`<p class="repmsg">${E(u)}</p>`:"")+`<p><b>${E(x.item_id_or_question)}</b></p>`+(c?`<p class="mute" style="font-size:.82rem">${E(c)}</p>`:"")})()}<div class="row">${x.status==="pending"?`<button class="chip" data-a="rres" data-v="${E(x.id)}|resolved">✓ Erledigt</button>`:`<button class="chip" data-a="rres" data-v="${E(x.id)}|pending">↺ Wieder öffnen</button>`}<button class="chip dgr" data-a="rdel" data-v="${E(x.id)}">${ui.rdc===x.id?"Wirklich löschen?":"🗑️ Löschen"}</button></div></div>`).join(""):`<p class="mute">Keine Meldungen.</p>`:ui.rbusy?`<p class="mute">Lade …</p>`:""}</div>`}
 async function loadMembers(){if(!isAdm()||ui.mbusy)return;ui.mbusy=1;ui.merr="";render();
  try{ui.mem=(await tapi("/rest/v1/rpc/admin_user_overview",{method:"POST",body:"{}"}))||[]}catch(e){ui.merr=mterr(e)}
  ui.mbusy=0;softRender()}
@@ -813,7 +842,7 @@ const setH=()=>JSON.stringify(SYNCSET.map(k=>st.set[k]));
 const jx=()=>JSON.stringify({...st,ts:0,run:null,view:0,guest:0,uid:0,set:SYNCSET.map(k=>st.set[k])});
 let dirty=true,lastSetH=setH(),lastJ=jx(),pt=null;
 const track=()=>{lastSetH=setH();lastJ=jx()};
-const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
+const persist=()=>{xpSave();const j=JSON.stringify(st);try{localStorage.setItem(KEY,j)}catch(e){try{localStorage.removeItem(GK);localStorage.setItem(KEY,j)}catch(e2){ui.storeErr=1}}};
 const push=()=>{clearTimeout(pt);pt=setTimeout(sync,1500)};
 const save=()=>{const h=setH();if(h!==lastSetH){lastSetH=h;st.set_t=Date.now()}persist();const j=jx();if(j===lastJ)return;lastJ=j;st.ts=Date.now();dirty=true;persist();if(au)push()};
 const sig=()=>JSON.stringify([st.days,st.dk,st.xp,st.custom.map(e=>e.id+":"+e.mt),st.ov,st.exd.length,Object.keys(st.qs).length,Object.keys(st.tm).length,SYNCSET.map(k=>st.set[k]),GL.map(e=>e.id+":"+e.gt),GX.map(e=>e.id),Object.values(st.dh||{}).reduce((a,b)=>a+b,0)]);
@@ -838,17 +867,17 @@ async function syncCore(){
   }catch(e){dirty=true;if(!r&&e.st===409)continue;throw e}
  }
  throw new Error("Konflikt")}
-let sp=null,again=false,sg0=null;
+let sp=null,again=false,sg0=null,rt=0;
 function sync(){if(!au)return Promise.resolve(false);if(sp){again=true;return sp}
  sg0=sig();ui.sync="busy";paintSync();
- sp=syncCore().then(async()=>{ui.sync="ok";ui.syncAt=Date.now();try{await pubStats()}catch(e){}return true},e=>{ui.sync="err";return false}).then(ok=>{sp=null;if(again){again=false;return sync()}afterSync();return ok});
+ sp=syncCore().then(async()=>{ui.sync="ok";ui.syncAt=Date.now();try{await pubStats()}catch(e){}return true},e=>{ui.sync="err";clearTimeout(rt);rt=setTimeout(()=>{if(au)sync()},25000);return false}).then(ok=>{sp=null;if(again){again=false;return sync()}afterSync();return ok});
  return sp}
 function afterSync(){paintSync();if(st.view==="teams"&&au)refreshTeams();if(!au&&sbOn()){render();return}if(sig()!==sg0)softRender()}
 /* nie neu zeichnen, während der Nutzer gerade tippt */
 function softRender(){const a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return;if(st.view==="quiz"&&st.run&&!st.run.done)return;render()}
 function paintSync(){document.querySelectorAll(".syncpill").forEach(n=>{const d=document.createElement("div");d.innerHTML=syncPill(!!n.dataset.s);n.replaceWith(d.firstElementChild)})}
 document.addEventListener("visibilitychange",()=>{if(!au)return;if(document.hidden){if(dirty)sync()}else if(Date.now()-(ui.syncAt||0)>15000)sync()});
-addEventListener("online",()=>sync());
+addEventListener("online",()=>sync());addEventListener("pagehide",()=>{if(au&&dirty)sync()});
 setInterval(()=>{if(au&&!document.hidden&&Date.now()-(ui.syncAt||0)>60000)sync()},30000);
 
 /* ===== Helfer ===== */
@@ -862,7 +891,7 @@ const cur=()=>{const l=FX();return l.find(e=>e.id===st.set.exam)||l[0]||null};
 const isLang=()=>LANG.includes(st.set.fach);
 const TY={tf:"tf",rf:"tf",wahr:"tf",richtigfalsch:"tf",fill:"fill",luecke:"fill",lueckentext:"fill","lücke":"fill","lückentext":"fill",match:"match",zuordnung:"match",mc:"mc"};
 const TYN={mc:"Multiple Choice",tf:"Richtig/Falsch",fill:"Lückentext",match:"Zuordnung"};
-function nq(x){if(!Array.isArray(x)||typeof x[1]!=="string")return null;const t=String(x[0]||"Allgemein"),q=x[1];
+function nq0(x){if(!Array.isArray(x)||typeof x[1]!=="string")return null;const t=String(x[0]||"Allgemein"),q=x[1];
  if(typeof x[2]==="boolean")return{t,q,o:["Richtig","Falsch"],a:x[2]?0:1,w:x[3]||"",ty:"tf"};
  let ty=TY[String(x[5]||"").toLowerCase()];
  if(!ty)ty=(typeof x[3]==="string"||(Array.isArray(x[3])&&x[3].length&&x[3].every(v=>typeof v==="string")))?"fill":(Array.isArray(x[2])&&x[2].length&&x[2].every(Array.isArray))?"match":"mc";
@@ -872,6 +901,15 @@ function nq(x){if(!Array.isArray(x)||typeof x[1]!=="string")return null;const t=
  if(ty==="match"){const o=(Array.isArray(x[2])?x[2]:[]).filter(p=>Array.isArray(p)&&p.length>=2).map(p=>[String(p[0]),String(p[1])]);if(o.length<2)return null;return{t,q,o,a:0,w,ty}}
  if(!Array.isArray(x[2])||x[2].length<2||!Number.isInteger(x[3])||x[3]<0||x[3]>=x[2].length)return null;
  return{t,q,o:x[2].map(String),a:x[3],w,ty:"mc"}}
+function nq(x){const o=nq0(x);if(o&&Array.isArray(x)&&typeof x[6]==="string"&&x[6].trim())o.h=x[6].trim();return o}
+/* Hilfe zur Frage: eigener Hilfetext (7. Feld der Aufgabe), sonst passende Begriffe aus der Begriffsliste */
+function helpHtml(q,ex){
+ if(q.h)return`<b>So ist die Frage gemeint</b>${q.h.split(/\n+/).map(p=>`<p>${E(p)}</p>`).join("")}`;
+ const txt=nz(q.q),tk=txt.split(" "),L=[];
+ for(const x of TL(ex)){const n=nz(String(x.n).replace(/\([^)]*\)/g," "));if(n.length<4)continue;const hit=n.includes(" ")?(" "+txt+" ").includes(" "+n+" "):tk.some(t=>t===n||(t.startsWith(n)&&t.length<=n.length+3));if(hit&&!L.some(y=>y.n===x.n))L.push(x);if(L.length>=4)break}
+ if(L.length)return`<b>Wichtige Begriffe in dieser Frage</b>${L.map(x=>`<p><b style="display:inline">${E(x.n)}:</b> ${E(String(x.d).slice(0,240))}</p>`).join("")}`;
+ return`<b>So gehst du vor</b><p>Lies die Frage in Ruhe und suche das Fachwort darin. Schau es unter „Begriffe“ oder „Infos“ nach (Thema: ${E(q.t)}). Wenn die Antwort noch unklar ist: Tipp einfach und lies danach die Erklärung.</p>`}
+const helpBtn=id=>`<button class="flag help" data-a="hlp" data-v="${E(id)}" aria-label="Frage erklären" aria-pressed="false" title="Frage erklären">?</button>`;
 const QL=ex=>ex?(ex.q||[]).map(x=>{const n=nq(x);return n&&{id:ex.id+":"+hh(x[1]),...n}}).filter(Boolean):[];
 const TL=ex=>{if(!ex)return[];const seen={};return(ex.t||[]).filter(x=>Array.isArray(x)&&x.length>=3).map(x=>{const pg=x.length>3&&x[3]!=null?String(x[3]).trim():"",pn=parseInt(pg),o={id:ex.id+":"+hh(pg?String(x[0])+"|"+String(x[1])+"|"+pg:String(x[1])),t:x[0],n:String(x[1]),d:String(x[2])};
  if(pg&&!isNaN(pn)){o.p=pg;o.pn=pn;o.pe=parseInt(pg.split("/").pop())||pn;if(seen[o.id])o.id+="~"+(++seen[o.id]);else seen[o.id]=1}return o})};
@@ -928,19 +966,24 @@ function confetti(n){try{if(st.set.anim===false||matchMedia("(prefers-reduced-mo
   if(alive&&t-t00<4500)requestAnimationFrame(f);else c.remove()})(t00)}catch(e){}}
 let AC;function fb(ok){const s=st.set;hap(ok?18:[35,50,35]);
  if(s.sound)try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain(),n=AC.currentTime;o.type="sine";o.frequency.value=ok?880:220;g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(.15,n+.02);g.gain.exponentialRampToValueAtTime(.0001,n+(ok?.18:.3));o.connect(g);g.connect(AC.destination);o.start();o.stop(n+.32)}catch(e){}}
-function addXp(n){st.xp=(st.xp||0)+n;{const d=ld(Date.now()),o=ld(Date.now()-70*864e5);st.dh=st.dh||{};st.dh[d]=Math.max(0,(st.dh[d]||0)+n);for(const k of Object.keys(st.dh))if(k<o)delete st.dh[k]}const h=Math.floor(Date.now()/36e5);st.xlog=st.xlog||{};st.xlog[h]=(st.xlog[h]||0)+n;for(const k of Object.keys(st.xlog))if(+k<h-72)delete st.xlog[k]}
+function addXp(n){n=Math.round(+n)||0;if(n<=0)return;st.xg=st.xg||{};st.xg[DEV]=(st.xg[DEV]||0)+n;xpFix(st);xpSave();{const d=ld(Date.now()),o=ld(Date.now()-70*864e5);st.dh=st.dh||{};st.dh[d]=Math.max(0,(st.dh[d]||0)+n);for(const k of Object.keys(st.dh))if(k<o)delete st.dh[k]}const h=Math.floor(Date.now()/36e5);st.xlog=st.xlog||{};st.xlog[h]=(st.xlog[h]||0)+n;for(const k of Object.keys(st.xlog))if(+k<h-72)delete st.xlog[k]}
 const XPV={q:6,v:5,t:5};/* XP pro richtiger Antwort: Quiz / Vokabel / Begriff */
 const okf=(R,q,id)=>R.ov&&id in R.ov?R.ov[id]:okq(q,R.a[id]);
 const R0=r=>r.res0||r;
 function fixRec(id,was,now,k){if(was===now)return;k=k||"q";const o=st.qs[id]||{r:0,w:0,l:1};if(was){o.r=Math.max(0,o.r-1);addXp(-XPV[k])}else o.w=Math.max(0,o.w-1);if(now){o.r++;addXp(XPV[k])}else o.w++;o.l=now?1:0;o.t=Date.now();if(k==="v")srs(o,now);st.qs[id]=o;fb(now)}
 const plain=h=>{const d=document.createElement("div");d.innerHTML=h;return d.textContent};
+function openRep(k){if(!au){toast("Bitte melde dich an, um Fehler zu melden.");return}if(ui.rd&&ui.rd[k])return;closeRep();
+ const e=document.createElement("div");e.className="repm";e.id="repm";e.dataset.a="repx";e.dataset.k=k;
+ e.innerHTML=`<div class="repc" data-a="keep" role="dialog" aria-modal="true" aria-label="Fehler melden"><h3>Fehler melden</h3><p class="mute">Schreib kurz, was nicht stimmt. Deine Nachricht geht direkt an den Admin.</p><textarea id="rept" maxlength="600" rows="4" placeholder="z. B. Die Lösung ist falsch, weil …"></textarea><div class="repb"><button class="btn" data-a="repx">Abbrechen</button><button class="btn pri" data-a="repok" id="repok" disabled>Melden</button></div></div>`;
+ document.body.appendChild(e);const t=e.querySelector("textarea");t.addEventListener("input",()=>{e.querySelector("#repok").disabled=!t.value.trim()});setTimeout(()=>{try{t.focus()}catch(x){}},60)}
+function closeRep(){const m=document.getElementById("repm");if(m)m.remove()}
 const flagBtn=(t,id)=>{const k=t+"|"+id;return ui.rd&&ui.rd[k]?`<span class="flag done" title="Gemeldet">✓</span>`:`<button class="flag" data-a="rep" data-v="${E(k)}" aria-label="Fehler melden" title="Fehler melden">🚩</button>`};
-async function report(k){const i=k.indexOf("|"),t=k.slice(0,i),id=k.slice(i+1);ui.rd=ui.rd||{};if(ui.rd[k]||!au)return;let type,item,msg;
+async function report(k,text){const i=k.indexOf("|"),t=k.slice(0,i),id=k.slice(i+1);ui.rd=ui.rd||{};if(ui.rd[k]||!au)return;let type,item,msg;
  const e=exams().find(x=>id.startsWith(x.id+":"));if(!e)return;
  if(t==="q"){const q=QL(e).find(x=>x.id===id);if(!q)return;type="Quiz";item=q.q;msg="["+e.title+" · "+q.t+"] ID "+id+" · "+TYN[q.ty]+" · Lösung: "+plain(corr(q))}
  else{const it=TL(e).find(x=>x.id===id);if(!it)return;type="Vokabel";item=it.n+" = "+it.d;msg="["+e.title+" · "+it.t+"] ID "+id}
  ui.rd[k]=1;document.querySelectorAll('[data-a="rep"]').forEach(b=>{if(b.dataset.v===k){const sp=document.createElement("span");sp.className="flag done";sp.title="Gemeldet";sp.textContent="✓";b.replaceWith(sp)}});
- try{await tapi("/rest/v1/reported_errors",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({user_id:au.id,item_type:type,item_id_or_question:String(item).slice(0,2000),message:msg.slice(0,2000)})});toast("Danke! Der Fehler wurde gemeldet.")}
+ try{await tapi("/rest/v1/reported_errors",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({user_id:au.id,item_type:type,item_id_or_question:String(item).slice(0,2000),message:((text?text+"\n\n":"")+msg).slice(0,2000)})});toast("Danke! Der Fehler wurde gemeldet.")}
  catch(er){delete ui.rd[k];toast(er.st===404?"Melden nicht möglich: Tabelle fehlt (SQL-Skript im Supabase ausführen).":"Melden fehlgeschlagen: "+(er.message||"Fehler"));if(st.view!=="quiz"||!st.run||st.run.done)softRender()}}
 /* Wiederholung für Vokabeln: richtig = nächste Stufe (1, 3, 7 Tage), falsch = Stufe 0 und sofort wieder fällig */
 const SRI=[0,1,3,7];
@@ -1102,7 +1145,7 @@ function runView(r){const ex=exams().find(e=>e.id===r.ex)||cur(),map=Object.from
   return`<div class="mrow ${c}"><span>${E(pr[0])}</span><select data-m="${k}" ${lock?"disabled":""}><option value="">Wählen …</option>${ord.map(ri=>`<option value="${ri}" ${v===ri?"selected":""}>${E(q.o[ri][1])}</option>`).join("")}</select></div>`}).join("")}
  const needChk=typed&&r.mode==="training"&&!lock;
  const willRep=r.mode==="training"&&r.phase!==1&&r.ids.some(i=>map[i]&&r.a[i]!==undefined&&!okf(r,map[i],i));
- return`${r.tl?`<div class="tmr ${tmRem(r)<=60?"low":""}" id="tmr">${tmFmt(tmRem(r))}</div>`:""}<div class="tagrow"><div class="tag">${r.phase===1?"Wiederholung · ":""}${E(q.t)} · ${TYN[ty]} · Frage ${r.i+1} von ${r.ids.length}</div>${flagBtn("q",id)}</div><div class="bar"><i style="width:${100*r.i/r.ids.length}%"></i></div>${typed?"":`<div class="q">${E(q.q)}</div>`}${body}
+ return`${r.tl?`<div class="tmr ${tmRem(r)<=60?"low":""}" id="tmr">${tmFmt(tmRem(r))}</div>`:""}<div class="tagrow"><div class="tag">${r.phase===1?"Wiederholung · ":""}${E(q.t)} · ${TYN[ty]} · Frage ${r.i+1} von ${r.ids.length}</div><span class="acts">${helpBtn(id)}${flagBtn("q",id)}</span></div><div class="bar"><i style="width:${100*r.i/r.ids.length}%"></i></div><div class="hbox box merk" id="hb-${E(id)}" hidden>${helpHtml(q,ex)}</div>${typed?"":`<div class="q">${E(q.q)}</div>`}${body}
  ${ui.hint&&needChk?`<p class="mute">${E(ui.hint)}</p>`:""}
  ${lock?`<div class="box ${good?"merk":"falle"}"><b>${good?"Richtig":"Leider falsch"}</b>${good?"":`Richtig ist: ${corr(q)}<br>`}${E(q.w)}</div>${r.phase!==1?`<div class="corr"><button class="chip" data-a="flip">${good?"Doch als falsch werten":"Trotzdem als richtig werten"}</button></div>`:""}`:""}
  <div class="row" style="margin-top:1rem"><button class="btn" data-a="quit">Abbrechen</button>${needChk?`<button class="btn pri" data-a="chk">Prüfen</button>`:`<button class="btn pri" data-a="next" ${!typed&&ans===undefined?"disabled":""}>${r.i+1===r.ids.length?(willRep?"Falsche wiederholen":"Auswerten"):"Weiter"}</button>`}</div>`}
@@ -1314,23 +1357,27 @@ const lern=lernRaw;
 /* Lernplan: offene Aufgaben/Begriffe verteilt auf die verbleibenden Lerntage (Ferien/freie Tage zählen bei aktivem Ferienmodus nicht) */
 function lplan(x){const p=lernRaw(x.f,x.t);if(!p)return null;const rest=p.n-p.k,n=dleft(x.d);let days=0;for(let i=0;i<n;i++){const d=new Date();d.setDate(d.getDate()+i);if(!(st.set.fmod&&isFrei(ld(d))))days++}days=Math.max(1,days);return{...p,rest,days,per:rest>0?Math.ceil(rest/days):0}}
 function vPlan(){const ty=ld(Date.now());if(!ui.pm)ui.pm=ty.slice(0,7);if(!ui.pd)ui.pd=ty;
- const[y,m]=ui.pm.split("-").map(Number),off=(new Date(y,m-1,1).getDay()+6)%7,dim=new Date(y,m,0).getDate(),by={};
- for(const x of allX())(by[x.d]=by[x.d]||[]).push(x);
- let cells="";for(let i=0;i<off;i++)cells+=`<div class="pc e"></div>`;
- for(let d=1;d<=dim;d++){const ds=y+"-"+String(m).padStart(2,"0")+"-"+String(d).padStart(2,"0"),L=by[ds]||[],fe=ferien(ds),fz=frX(ds);
-  cells+=`<button class="pc ${ds===ty?"today":""} ${ds===ui.pd?"sel":""} ${fe?"fer":""} ${fz?"frd":""}" data-a="pday" data-v="${ds}" aria-label="${d}. ${MONAT[m-1]}${L.length?", "+L.length+" Termin"+(L.length>1?"e":""):""}${fe?", "+fe:""}${fz?", freier Tag":""}"><i>${d}</i><span class="pk">${L.slice(0,3).map(x=>`<b style="background:${fkc(x.f)}">${E(fk(x.f)[0])}</b>`).join("")}${L.length>3?`<em>+${L.length-3}</em>`:""}</span></button>`}
- const L=by[ui.pd]||[],past=ui.pd<ty,fe0=ferien(ui.pd),frs=(st.exd||[]).filter(x=>isFr(x)&&x.d===ui.pd),lab=new Date(ui.pd+"T12:00:00").toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});
+ const[y,m]=ui.pm.split("-").map(Number),off=(new Date(y,m-1,1).getDay()+6)%7,dim=new Date(y,m,0).getDate(),by={},all=allX();
+ for(const x of all)(by[x.d]=by[x.d]||[]).push(x);
+ let cells="";for(let i=0;i<off;i++)cells+=`<div class="cdy e"></div>`;
+ for(let d=1;d<=dim;d++){const ds=y+"-"+String(m).padStart(2,"0")+"-"+String(d).padStart(2,"0"),L=by[ds]||[],fe=ferien(ds),fz=frX(ds),wk=((off+d-1)%7)>=5;
+  cells+=`<button class="cdy ${ds===ty?"today":""} ${ds===ui.pd?"sel":""} ${fe?"fer":""} ${fz?"frd":""} ${wk?"wk":""}" data-a="pday" data-v="${ds}" aria-label="${d}. ${MONAT[m-1]}${L.length?", "+L.map(x=>x.f).join(", "):""}${fe?", "+fe:""}${fz?", freier Tag":""}"><i>${d}</i><span class="pk">${L.slice(0,2).map(x=>`<b style="--c:${fkc(x.f)}">${E(fk(x.f)[0])}</b>`).join("")}${L.length>2?`<em>+${L.length-2}</em>`:""}</span></button>`}
+ const L=by[ui.pd]||[],past=ui.pd<ty,fe0=ferien(ui.pd),frs=(st.exd||[]).filter(x=>isFr(x)&&x.d===ui.pd),dd=new Date(ui.pd+"T12:00:00"),
+  wd=dd.toLocaleDateString("de-DE",{weekday:"long"}),dl=dd.toLocaleDateString("de-DE",{day:"numeric",month:"long",year:"numeric"}),
+  nx=all.filter(x=>x.d>=ty).sort((p,q)=>p.d<q.d?-1:p.d>q.d?1:0)[0],
+  cd=n=>n===0?"heute":n===1?"morgen":n<0?"vorbei":"in "+n+" Tagen";
  const rows=L.map(x=>{const n=dleft(x.d),p=lplan(x),own=!x.g,idx=own?(st.exd||[]).indexOf(x):-1;
-  return`<div class="pev"><span class="pbd" style="background:${fkc(x.f)}">${E(fk(x.f)[0])}</span><div style="flex:1;min-width:0"><b>${E(x.f)}${x.t?" · "+E(x.t):""}</b><div class="mute">${x.g?"Für alle":"Eigener Termin"} · ${n===0?"heute":n===1?"morgen":"in "+n+" Tagen"}</div>${p===null?`<div class="mute">Noch kein Stoff in der App</div>`:`<div class="pls"><div class="bar"><i style="width:${p.p}%"></i></div><span>${p.p} %</span></div><div class="mute" style="margin-top:-.5rem">Lernstand</div><div class="mute" style="margin-top:.25rem"><b>Lernplan:</b> ${p.rest>0?`${p.per} pro Tag, noch ${p.rest} offen (${p.days} ${p.days===1?"Tag":"Tage"})`:"Alles sicher. Kurz wiederholen reicht."}</div>`}<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem"><button class="chip" data-a="plgo" data-v="${E(x.f)}">Jetzt lernen</button>${own&&idx>=0?`<button class="chip" data-a="delexd" data-v="${idx}">Löschen</button>`:""}${x.g&&isAdm()?`<button class="chip" data-a="delgx" data-v="${E(x.id)}">${ui.gxd===x.id?"Wirklich löschen?":"Löschen"}</button>`:""}</div></div></div>`}).join("");
- const form=past?`<p class="mute">Dieser Tag ist vorbei.</p>`:`<div class="sr col" style="margin-top:.6rem"><b style="font-weight:600">Termin eintragen</b><div class="row"><select id="pxf" style="margin:0">${FACH.map(f=>`<option ${f===st.set.fach?"selected":""}>${f}</option>`).join("")}<option value="Frei">Freier Tag (Fasching, Brückentag …)</option></select><input id="pxt" placeholder="Titel (optional)" style="margin:0"></div>${isAdm()?`<label class="chk"><input type="checkbox" id="pxg">Für alle eintragen (Global)</label>`:""}<button class="btn sm" style="margin-top:.5rem" data-a="paddx">Eintragen</button></div>`;
- return`<h1>Planer</h1><p class="mute">Klassenarbeiten und Tests auf einen Blick.</p>
- <div class="pnav"><button data-a="pmon" data-v="-1" aria-label="Voriger Monat">‹</button><h2>${MONAT[m-1]} ${y}</h2><button data-a="pmon" data-v="1" aria-label="Nächster Monat">›</button></div>
- <div class="pg7">${["Mo","Di","Mi","Do","Fr","Sa","So"].map(d=>`<div class="ph">${d}</div>`).join("")}${cells}</div>
- <div style="margin:.6rem 0 0"><button class="chip" data-a="ptoday">Heute</button></div>
- <div class="plg">${FACH.map(f=>`<span><b style="background:${fkc(f)}">${E(fk(f)[0])}</b>${E(f)}</span>`).join("")}<span><i class="lgf"></i>Ferien BW</span><span><i class="lgz"></i>Freier Tag</span></div>
- <p class="mute" style="font-size:.78rem">Ferientermine BW bis 2028 laut Kultusministerium, inklusive angrenzender Wochenenden (ohne Gewähr). Fasching und bewegliche Ferientage legt jede Schule selbst fest: bitte unten als „Freier Tag“ eintragen.</p>
+  return`<div class="cev" style="--c:${fkc(x.f)}"><span class="cbd">${E(fk(x.f)[0])}</span><div class="cbody"><div class="ctop"><b class="cfach">${E(x.f)}</b><span class="cpill">${cd(n)}</span></div>${x.t?`<div class="ctit">${E(x.t)}</div>`:""}<div class="mute" style="font-size:.8rem">${x.g?"Für alle eingetragen":"Eigener Termin"}</div>${p===null?`<div class="mute" style="margin-top:.4rem">Noch kein Stoff in der App</div>`:`<div class="pls"><div class="bar"><i style="width:${p.p}%"></i></div><span>${p.p} %</span></div><div class="mute" style="font-size:.82rem;margin-top:-.5rem"><b>Lernplan:</b> ${p.rest>0?`${p.per} pro Tag, noch ${p.rest} offen (${p.days} ${p.days===1?"Tag":"Tage"})`:"Alles sicher. Kurz wiederholen reicht."}</div>`}<div class="cact"><button class="chip" data-a="plgo" data-v="${E(x.f)}">Jetzt lernen</button>${own&&idx>=0?`<button class="chip" data-a="delexd" data-v="${idx}">Löschen</button>`:""}${x.g&&isAdm()?`<button class="chip" data-a="delgx" data-v="${E(x.id)}">${ui.gxd===x.id?"Wirklich löschen?":"Löschen"}</button>`:""}</div></div></div>`}).join("");
+ const sel=ui.pxf||st.set.fach;
+ const form=past?"":ui.padd?`<div class="cf"><b>Neuer Eintrag für den ${E(dl)}</b><div class="cs-wrap">${FACH.map(f=>`<button type="button" class="cs ${f===sel?"on":""}" style="--c:${fkc(f)}" data-a="pxsel" data-v="${E(f)}">${E(f)}</button>`).join("")}<button type="button" class="cs fr ${sel==="Frei"?"on":""}" style="--c:hsl(38 80% 45%)" data-a="pxsel" data-v="Frei">☀️ Freier Tag</button></div><input type="hidden" id="pxf" value="${E(sel)}"><input id="pxt" class="cin" placeholder="Titel, z. B. KA 2 oder Brückentag (optional)" maxlength="40">${isAdm()?`<label class="chk"><input type="checkbox" id="pxg">Für alle eintragen (Global)</label>`:""}<div class="row"><button class="btn" data-a="padd">Abbrechen</button><button class="btn pri" data-a="paddx">Eintragen</button></div></div>`:`<button class="btn cadd" data-a="padd">＋ Termin oder freien Tag eintragen</button>`;
+ return`<h1>Planer</h1>
+ ${nx?`<button class="cnext" data-a="pgo" data-v="${E(nx.d)}" style="--c:${fkc(nx.f)}"><span class="cbd">${E(fk(nx.f)[0])}</span><span><small>Nächster Termin</small><b>${E(nx.f)}${nx.t?" · "+E(nx.t):""}</b></span><em>${cd(dleft(nx.d))}</em></button>`:""}
+ <div class="cnav"><button data-a="pmon" data-v="-1" aria-label="Voriger Monat">‹</button><div class="cm"><h2>${MONAT[m-1]}</h2><small>${y}</small></div><button data-a="pmon" data-v="1" aria-label="Nächster Monat">›</button></div>
+ <div class="cgrid">${["Mo","Di","Mi","Do","Fr","Sa","So"].map(d=>`<div class="ph">${d}</div>`).join("")}${cells}</div>
+ <div class="ctd"><button class="chip" data-a="ptoday">Heute</button></div>
  ${ui.msg?`<div class="box merk"><b>Hinweis</b>${E(ui.msg)}</div>`:""}
- <h2>${E(lab)}</h2><div class="card">${fe0?`<div class="pfe"><span>🌴</span><b>${E(fe0)}</b><small>Schulferien BW</small></div>`:""}${frs.map(x=>`<div class="pfe"><span>☀️</span><b>Freier Tag${x.t?": "+E(x.t):""}</b><button class="chip" data-a="delexd" data-v="${(st.exd||[]).indexOf(x)}">Löschen</button></div>`).join("")}${rows||`<span class="mute">Keine Termine an diesem Tag.</span>`}${form}</div>`}
+ <div class="card cdet"><div class="cdh"><div><small>${E(wd)}</small><h2>${E(dl)}</h2></div></div>
+ ${fe0?`<div class="pfe"><span>🌴</span><div><b>${E(fe0)}</b><small>Schulferien BW (ohne Gewähr)</small></div></div>`:""}${frs.map(x=>`<div class="pfe"><span>☀️</span><div><b>Freier Tag${x.t?": "+E(x.t):""}</b><small>Von dir eingetragen</small></div><button class="chip" data-a="delexd" data-v="${(st.exd||[]).indexOf(x)}">Löschen</button></div>`).join("")}${rows||(fe0||frs.length?"":`<p class="mute cempty">Keine Termine an diesem Tag.</p>`)}${form}</div>`}
 
 /* ===== Karteikarten (Vokabeln) ===== */
 let kc=null;
@@ -1360,7 +1407,11 @@ function act(a,v){const s=st.set;
  if(a==="say"){say(v);return}
  if(a==="vstar"){st.star=st.star||{};st.star[v]=isStar(v)?-Date.now():Date.now();save();if(ui.vlist&&ui.vStarOnly){render();return}const on=isStar(v);document.querySelectorAll('[data-a="vstar"]').forEach(b=>{if(b.dataset.v===v){b.classList.toggle("on",on);b.textContent=on?"★":"☆";b.setAttribute("aria-pressed",String(on))}});hap(6);return}
  if(a==="kflip"){if(!kc||kc.done)return;kc.flip=!kc.flip;const z=$(".kcz");if(z)z.classList.toggle("flip",kc.flip);return}
- if(a==="rep"){report(v);return}
+ if(a==="rep"){openRep(v);return}
+ if(a==="repx"){closeRep();return}
+ if(a==="repok"){const m=$("#repm"),t=$("#rept");if(!m||!t||!t.value.trim())return;const k=m.dataset.k,x=t.value.trim().slice(0,600);closeRep();report(k,x);return}
+ if(a==="hlp"){const b=document.getElementById("hb-"+v);if(b){const o=b.hidden;b.hidden=!o;document.querySelectorAll('[data-a="hlp"]').forEach(x=>{if(x.dataset.v===v){x.classList.toggle("on",o);x.setAttribute("aria-pressed",String(o))}})}return}
+ if(a==="pxsel"){const h=$("#pxf");if(h)h.value=v;ui.pxf=v;document.querySelectorAll(".cs").forEach(b=>b.classList.toggle("on",b.dataset.v===v));return}
  if(a==="wday"){ui.wk=v;render();return}
  if(a==="admtgl"){if(!isAdmin())return;st.set.adm=!st.set.adm;if(!st.set.adm&&(st.view==="dash"||st.view==="adm")){st.view="home";ui.ed=null}save();render();return}
  if(a==="godash"){if(!isAdm())return;st.view="dash";ui.msg="";ui.dmsg="";render();loadMembers();loadReports();return}
@@ -1466,13 +1517,15 @@ function act(a,v){const s=st.set;
  else if(a==="vmode"){s.vmode=v==="k"?"k":"w"}
  else if(a==="pmon"){const[y,m]=(ui.pm||ld(Date.now()).slice(0,7)).split("-").map(Number),d=new Date(y,m-1+ +v,1);ui.pm=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");ui.msg=""}
  else if(a==="ptoday"){ui.pm=ld(Date.now()).slice(0,7);ui.pd=ld(Date.now());ui.msg=""}
- else if(a==="pday"){ui.pd=v;ui.msg=""}
+ else if(a==="pday"){ui.pd=v;ui.msg="";ui.padd=false}
+ else if(a==="pgo"){ui.pm=v.slice(0,7);ui.pd=v;ui.msg="";ui.padd=false}
+ else if(a==="padd"){ui.padd=!ui.padd}
  else if(a==="hgo"){const[f,ex,vw0,op]=v.split("|");let vw=vw0;s.fach=f;s.exam=ex||"";s.topics=[];s.pf=s.pt="";vr=null;tr=null;kc=null;if(st.run&&st.run.done)st.run=null;ui.vWrong=ui.vDue=ui.vStar=false;ui.onlyWrong=false;ui.vlist=false;
   if(op==="due")ui.vDue=true;if(op==="wrong"){vw==="voc"?ui.vWrong=true:ui.onlyWrong=true}
   if(vw==="auto"){const cp=caps(cur());vw=["quiz","terms","voc","info"].find(k=>cp[k]&&!(k==="voc"&&!isLang()))||"home"}st.view=vw}
  else if(a==="plgo"){s.fach=v;s.exam="";s.topics=[];s.pf=s.pt="";vr=null;tr=null;kc=null;if(st.run&&st.run.done)st.run=null;st.view="home"}
  else if(a==="paddx"){const d=ui.pd,f=$("#pxf").value,t=$("#pxt").value.trim().slice(0,40);if(!d||(f==="Frei"?d<ld(Date.now()):gxExp({d}))){ui.msg="Dieser Tag ist vorbei.";render();return}
-  if(f!=="Frei"&&isAdm()&&$("#pxg")&&$("#pxg").checked){gAddX(d,f,t);return}st.exd=[...(st.exd||[]),{f,d,t,mt:Date.now()}];ui.msg=f==="Frei"?"Freier Tag gespeichert.":"Termin gespeichert."}
+  if(f!=="Frei"&&isAdm()&&$("#pxg")&&$("#pxg").checked){ui.padd=false;gAddX(d,f,t);return}st.exd=[...(st.exd||[]),{f,d,t,mt:Date.now()}];ui.msg=f==="Frei"?"Freier Tag gespeichert.":"Termin gespeichert.";ui.padd=false}
  else if(a==="vcheck"||a==="tcheck"){checkT(a[0])}
  else if(a==="vnext"||a==="tnext"){nextT(a[0])}
  else if(a==="vflip"||a==="tflip"){flipT(a[0])}
