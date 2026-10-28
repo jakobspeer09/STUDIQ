@@ -154,6 +154,22 @@ button.pill{cursor:pointer}.pill .cap{width:20px;height:20px}
 .tw table:not(.w4) th:first-child,.tw table:not(.w4) td:first-child{min-width:9rem;width:34%}
 .tw th.n,.tw td.n{white-space:nowrap;width:1%;text-align:center}
 .tcap{font-size:.8rem;color:var(--mute);margin:.8rem 0 -.5rem}
+/* Update 9: Info-Tabellen und Erklär-? */
+.tw td,.tw th{overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto}
+.tw table:not(.w4) th:first-child,.tw table:not(.w4) td:first-child{min-width:7.5rem}
+.tw td:empty{display:none}
+.xq{margin:.2rem 0 .6rem}.xqb{width:32px;height:32px;min-height:0}
+.xqt{margin:.4rem 0 .4rem;padding:.65rem .9rem;border-radius:14px;background:var(--blueBg);border:1px solid color-mix(in srgb,var(--blue) 30%,var(--line))}
+.xqt[hidden]{display:none}.xqt b{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--blue);margin-bottom:.15rem}.xqt p{margin:.25rem 0;font-size:.93rem}
+[data-layout=phone] .tw.stw{border:0;background:none;overflow:visible}
+[data-layout=phone] .tw table.st,[data-layout=phone] .tw table.st tbody,[data-layout=phone] .tw table.st tr,[data-layout=phone] .tw table.st td{display:block;min-width:0;width:auto}
+[data-layout=phone] .tw table.st thead{display:none}
+[data-layout=phone] .tw table.st tr{margin:0 0 .6rem;padding:.55rem .8rem;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+[data-layout=phone] .tw table.st tr:nth-child(even) td{background:none}
+[data-layout=phone] .tw table.st td{border:0;padding:.3rem 0}
+[data-layout=phone] .tw table.st td:first-child{font-size:1rem;color:var(--blue);padding-bottom:.35rem;border-bottom:1px solid var(--line);margin-bottom:.15rem}
+[data-layout=phone] .tw table.st td:not(:first-child)::before{content:attr(data-l);display:block;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--mute)}
+
 .admbar{display:flex;gap:.7rem;align-items:flex-start;margin:0 0 .9rem;padding:.75rem .9rem;border-radius:18px;border:1px solid color-mix(in srgb,var(--blue) 45%,var(--line));background:linear-gradient(135deg,color-mix(in srgb,var(--blue) 16%,var(--card)),color-mix(in srgb,var(--card) 90%,transparent));-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .admbar b{display:block;font-size:.95rem}.admbar small{display:block;color:var(--mute);font-size:.8rem;line-height:1.35;margin-top:.1rem}
 .admtag{flex:none;margin-top:.15rem;padding:.15rem .5rem;border-radius:99px;background:var(--blue);color:var(--onblue);font-size:.68rem;font-weight:800;letter-spacing:.08em}
@@ -1238,23 +1254,26 @@ function endT(k){const R=(k==="v"?vr:tr).res,t=R.g+R.o+R.r||1;return`<h1>Runde g
 
 /* ===== Infos (Dokument-Ansicht) ===== */
 const IL=s=>E(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
-function mdLite(s){const out=[],L=String(s).split(/\r?\n/);let i=0;const special=/^(#{1,3}\s|\||[-*]\s|\d+[.)]\s|>\s|!\s)/;
+function mdLite(s){const out=[],L=String(s).split(/\r?\n/);let i=0;const special=/^(#{1,3}\s|\||[-*]\s|\d+[.)]\s|>\s|!\s|\?\?\s)/;
  while(i<L.length){const l=L[i].trim();if(!l){i++;continue}let m;
   if((m=l.match(/^(#{1,3})\s+(.*)$/))){out.push({h:m[2],l:m[1].length===3?3:2});i++;continue}
   if(l[0]==="|"){const rows=[];while(i<L.length&&L[i].trim()[0]==="|"){rows.push(L[i].trim().replace(/^\||\|$/g,"").split("|").map(c=>c.trim()));i++}
    const sp=rows.length>1&&rows[1].every(c=>/^:?-{2,}:?$/.test(c));out.push({table:{head:sp?rows[0]:[],rows:sp?rows.slice(2):rows}});continue}
   if(/^[-*]\s+/.test(l)){const a=[];while(i<L.length&&/^[-*]\s+/.test(L[i].trim())){a.push(L[i].trim().replace(/^[-*]\s+/,""));i++}out.push({ul:a});continue}
   if(/^\d+[.)]\s+/.test(l)){const a=[];while(i<L.length&&/^\d+[.)]\s+/.test(L[i].trim())){a.push(L[i].trim().replace(/^\d+[.)]\s+/,""));i++}out.push({ol:a});continue}
+  if(l.startsWith("?? ")){const lb=out[out.length-1];if(lb)lb.x=(lb.x?lb.x+"\n":"")+l.slice(3);i++;continue}
   if(l.startsWith("> ")){out.push({merk:l.slice(2)});i++;continue}
   if(l.startsWith("! ")){out.push({falle:l.slice(2)});i++;continue}
   const p=[l];i++;while(i<L.length&&L[i].trim()&&!special.test(L[i].trim())){p.push(L[i].trim());i++}out.push({p:p.join(" ")})}
  return out}
-function rb(b,id){if(!b||typeof b!=="object")return"";
+let XQ=0;
+function rb(b,id){const h=rb0(b,id);if(!b||typeof b!=="object"||typeof b.x!=="string"||!b.x.trim())return h;const k="xq"+(++XQ);return h+`<div class="xq"><button class="flag help xqb" data-a="xq" data-v="${k}" aria-pressed="false" aria-label="In einfachen Worten erklären" title="In einfachen Worten erklären">?</button><div class="xqt" id="${k}" hidden><b>In einfachen Worten</b>${b.x.split(/\n+/).map(t=>`<p>${IL(t)}</p>`).join("")}</div></div>`}
+function rb0(b,id){if(!b||typeof b!=="object")return"";
  if(b.h!=null)return b.l===3?`<h3 id="${id}">${IL(b.h)}</h3>`:`<h2 class="dh" id="${id}">${IL(b.h)}</h2>`;
  if(b.p!=null)return`<p>${IL(b.p)}</p>`;
  if(Array.isArray(b.ul))return`<ul>${b.ul.map(x=>`<li>${IL(x)}</li>`).join("")}</ul>`;
  if(Array.isArray(b.ol))return`<ol>${b.ol.map(x=>`<li>${IL(x)}</li>`).join("")}</ol>`;
- if(b.table&&Array.isArray(b.table.rows)){const hd=Array.isArray(b.table.head)?b.table.head:[];const cols=Math.max(hd.length,...b.table.rows.map(r=>Array.isArray(r)?r.length:1));const nc=[];for(let ci=0;ci<cols;ci++)nc[ci]=ci>0&&b.table.rows.length>0&&b.table.rows.every(r=>Array.isArray(r)&&/^\d+$/.test(String(r[ci]??"")));return(b.cap?`<div class="tcap">${IL(b.cap)}</div>`:"")+`<div class="tw"><table class="${cols>=4?"w4":""}">${hd.some(Boolean)?`<thead><tr>${hd.map((c,ci)=>`<th${nc[ci]?' class="n"':""}>${IL(c)}</th>`).join("")}</tr></thead>`:""}<tbody>${b.table.rows.map(r=>`<tr>${(Array.isArray(r)?r:[r]).map((c,ci)=>`<td${nc[ci]?' class="n"':""}>${IL(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`}
+ if(b.table&&Array.isArray(b.table.rows)){const hd=Array.isArray(b.table.head)?b.table.head:[];const cols=Math.max(hd.length,...b.table.rows.map(r=>Array.isArray(r)?r.length:1));const nc=[];for(let ci=0;ci<cols;ci++)nc[ci]=ci>0&&b.table.rows.length>0&&b.table.rows.every(r=>Array.isArray(r)&&/^\d+$/.test(String(r[ci]??"")));return(b.cap?`<div class="tcap">${IL(b.cap)}</div>`:"")+`<div class="tw${cols>=3&&!nc.some(Boolean)?" stw":""}"><table class="${cols>=3&&!nc.some(Boolean)?"st ":""}${cols>=4?"w4":""}">${hd.some(Boolean)?`<thead><tr>${hd.map((c,ci)=>`<th${nc[ci]?' class="n"':""}>${IL(c)}</th>`).join("")}</tr></thead>`:""}<tbody>${b.table.rows.map(r=>`<tr>${(Array.isArray(r)?r:[r]).map((c,ci)=>`<td${nc[ci]?' class="n"':""} data-l="${E(hd[ci]||"")}">${IL(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`}
  if(b.merk!=null)return`<div class="box merk"><b>Merke</b>${IL(b.merk)}</div>`;
  if(b.falle!=null)return`<div class="box falle"><b>Typischer Fehler</b>${IL(b.falle)}</div>`;return""}
 function docOf(e){const T=e.t||[],Q=e.q||[],tp=topics(e),own=Array.isArray(e.doc)?e.doc:typeof e.doc==="string"?mdLite(e.doc):DOCS[e.id]||[],out=[];
@@ -1410,6 +1429,7 @@ function act(a,v){const s=st.set;
  if(a==="rep"){openRep(v);return}
  if(a==="repx"){closeRep();return}
  if(a==="repok"){const m=$("#repm"),t=$("#rept");if(!m||!t||!t.value.trim())return;const k=m.dataset.k,x=t.value.trim().slice(0,600);closeRep();report(k,x);return}
+ if(a==="xq"){const b=document.getElementById(v);if(b){const o=b.hidden;b.hidden=!o;document.querySelectorAll('[data-a="xq"]').forEach(x=>{if(x.dataset.v===v){x.classList.toggle("on",o);x.setAttribute("aria-pressed",String(o))}})}return}
  if(a==="hlp"){const b=document.getElementById("hb-"+v);if(b){const o=b.hidden;b.hidden=!o;document.querySelectorAll('[data-a="hlp"]').forEach(x=>{if(x.dataset.v===v){x.classList.toggle("on",o);x.setAttribute("aria-pressed",String(o))}})}return}
  if(a==="pxsel"){const h=$("#pxf");if(h)h.value=v;ui.pxf=v;document.querySelectorAll(".cs").forEach(b=>b.classList.toggle("on",b.dataset.v===v));return}
  if(a==="wday"){ui.wk=v;render();return}
