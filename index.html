@@ -155,6 +155,11 @@ button.pill{cursor:pointer}.pill .cap{width:20px;height:20px}
 .tw th.n,.tw td.n{white-space:nowrap;width:1%;text-align:center}
 .tcap{font-size:.8rem;color:var(--mute);margin:.8rem 0 -.5rem}
 /* KI-Chat */
+.aibar{position:fixed;left:.6rem;right:.6rem;bottom:calc(5.3rem + env(safe-area-inset-bottom,0));max-width:640px;margin:0 auto;display:flex;align-items:flex-end;gap:.4rem;padding:.35rem .35rem .35rem .9rem;border-radius:24px;border:1px solid var(--line);background:var(--card);box-shadow:0 6px 20px rgba(0,0,0,.14);z-index:6}
+.aibar textarea{flex:1;min-width:0;width:auto;resize:none;border:0;outline:0;background:transparent;color:var(--ink);font:inherit;font-size:1rem;line-height:1.35;padding:.5rem 0;max-height:7.5rem;overflow-y:auto}
+.aisb{flex:none;width:40px;height:40px;border-radius:50%;border:0;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}.aisb:disabled{opacity:.4}
+.aisb svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+
 .aifab{position:fixed;left:.9rem;bottom:calc(5.4rem + env(safe-area-inset-bottom,0));width:48px;height:48px;border-radius:16px;border:1px solid var(--line);background:var(--card);box-shadow:0 6px 18px rgba(0,0,0,.18);font-size:1.4rem;line-height:1;z-index:6;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
 .aisv{display:block;width:100%;text-align:left;cursor:pointer;margin:.5rem 0;font:inherit;color:inherit}.aisv b{display:block}.aisv small{color:var(--mute)}
 .aient{width:100%;margin-top:.8rem}.aihd{display:flex;justify-content:space-between;align-items:center}
@@ -1255,9 +1260,9 @@ function vChat(){const c=ui.chat||(ui.chat=aiNew()),lim=ui.ai&&ui.ai.limit||50,l
  <div class="chips" style="margin:.2rem 0 .5rem"><button class="chip ${saved?"on":""}" data-a="aisave" ${c.msgs.length&&!saved?"":"disabled"}>${saved?"✓ Gespeichert":c.sid?"💾 Aktualisieren":"💾 Chat speichern"}</button><button class="chip" data-a="aichats">📚 Gespeicherte Chats (${nsv})</button>${c.msgs.length?`<button class="chip" data-a="aineu">➕ Neuer Chat</button>`:""}</div>
  <p class="mute" style="margin:.1rem 0 .6rem;font-size:.82rem">Kurze Erklärungen zu Schulthemen. Die KI kann sich irren, prüfe Wichtiges im Stoff. Schreib keine persönlichen Daten.${left!=null&&!isNaN(left)?` Heute noch ${left} von ${lim} Fragen.`:""}</p>
  <div class="aic" id="aic">${c.msgs.length?c.msgs.map(m=>`<div class="aim ${m.role==="user"?"me":"ki"}">${m.role==="user"?"<p>"+E(m.text)+"</p>":aiFmt(m.text)}</div>`).join(""):`<div class="aim ki"><p>Frag mich etwas zu ${E(st.set.fach)} oder einem anderen Fach, zum Beispiel „Was ist Osmose?“ oder „Wie löse ich eine quadratische Gleichung?“.</p></div>`}
- ${c.busy?`<div class="aim ki"><p class="mute">Denkt nach …</p></div>`:""}${c.err?`<div class="box amber"><b>Hinweis</b>${E(c.err)}</div>`:""}<span id="aiend"></span></div>
+ ${c.busy?`<div class="aim ki"><p class="mute">Denkt nach …</p></div>`:""}${c.err?`<div class="box amber"><b>Hinweis</b>${E(c.err)}</div>`:""}<span id="aiend" style="display:block;height:5.6rem"></span></div>
  ${last&&last.role==="model"&&!c.busy?`<div class="chips" style="margin:.4rem 0"><button class="chip" data-a="aisend" data-v="Erkläre ausführlicher.">Ausführlicher</button><button class="chip" data-a="aisend" data-v="Gib mir ein einfaches Beispiel.">Beispiel</button><button class="chip" data-a="aisend" data-v="Erkläre es noch einfacher.">Einfacher</button></div>`:""}
- <div class="aiin"><textarea id="aiin" rows="2" maxlength="500" placeholder="Frage eingeben oder Text einfügen (max. 500 Zeichen)" ${c.busy?"disabled":""}>${E(c.draft||"")}</textarea><button class="btn pri" data-a="aisend" ${c.busy?"disabled":""}>Senden</button></div>`}
+ <div class="aibar"><textarea id="aiin" rows="1" maxlength="500" placeholder="Nachricht schreiben …" ${c.busy?"disabled":""}>${E(c.draft||"")}</textarea><button class="aisb" data-a="aisend" aria-label="Senden" ${c.busy?"disabled":""}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></div>`}
 function aiKeep(){const t=document.getElementById("aiin");if(t&&ui.chat)ui.chat.draft=t.value}
 const aiNew=()=>({msgs:[],ctx:"Fach: "+st.set.fach,busy:false,err:"",draft:"",sid:"",sn:0});
 function aiSave(){const c=ui.chat;if(!c||!c.msgs.length)return;const L=(st.chats||[]).filter(x=>x&&!x.d);
@@ -1279,6 +1284,8 @@ async function aiSend(text){const c=ui.chat;if(!c||c.busy)return;text=String(tex
   c.msgs.push({role:"model",text:r.text});ui.ai={...(ui.ai||{}),open:true,left:+r.left}}
  catch(e){c.msgs.pop();c.err=e.st===429?"Heute sind deine Fragen aufgebraucht. Morgen geht es weiter.":e.st===503?"Die KI ist gerade nicht erreichbar. Bitte in einer Minute nochmal versuchen.":e.st===403?"Der KI-Chat ist noch nicht für dich freigeschaltet.":e.st===404?"Serverteil fehlt noch: Die Function ai-chat ist nicht eingerichtet.":e.st===401?"Bitte neu anmelden.":"Das hat nicht geklappt. Bitte nochmal versuchen.";if(e.st!==429&&e.st!==503)c.draft=text;else c.draft=text}
  c.busy=false;render();aiScroll()}
+document.addEventListener("input",e=>{const t=e.target;if(t&&t.id==="aiin"){t.style.height="auto";t.style.height=Math.min(120,t.scrollHeight)+"px"}});
+document.addEventListener("keydown",e=>{const t=e.target;if(t&&t.id==="aiin"&&e.key==="Enter"&&!e.shiftKey&&!e.isComposing&&!/iPhone|iPad|Android/i.test(navigator.userAgent)){e.preventDefault();aiSend(t.value)}});
 function aiScroll(){setTimeout(()=>{const e=document.getElementById("aiend");if(e)e.scrollIntoView({block:"end"})},30)}
 function aiOpen(ctx,first){if(st.view!=="chat"&&st.view!=="chats")ui.aiPrev=st.view;ui.chat={...aiNew(),ctx:ctx||"Fach: "+st.set.fach};st.view="chat";save();render();window.scrollTo(0,0);if(first)aiSend(first)}
 function aiQCtx(id){const ex=exams().find(e=>e.id===(st.run&&st.run.ex))||cur(),q=ex&&QL(ex).find(x=>x.id===id);if(!q)return"Fach: "+st.set.fach;
