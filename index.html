@@ -154,7 +154,13 @@ button.pill{cursor:pointer}.pill .cap{width:20px;height:20px}
 .tw table:not(.w4) th:first-child,.tw table:not(.w4) td:first-child{min-width:9rem;width:34%}
 .tw th.n,.tw td.n{white-space:nowrap;width:1%;text-align:center}
 .tcap{font-size:.8rem;color:var(--mute);margin:.8rem 0 -.5rem}
-/* Update 10: Wiederholung, Verlauf, Plan, Push */
+/* KI-Chat */
+.aient{width:100%;margin-top:.8rem}.aihd{display:flex;justify-content:space-between;align-items:center}
+.aic{display:flex;flex-direction:column;gap:.5rem;margin:.4rem 0}.aim{max-width:92%;padding:.55rem .8rem;border-radius:16px;font-size:.93rem;line-height:1.45;border:1px solid var(--line)}
+.aim p{margin:.15rem 0}.aim ul{margin:.2rem 0;padding-left:1.1rem}.aim.me{align-self:flex-end;background:color-mix(in srgb,var(--blue) 14%,transparent)}.aim.ki{align-self:flex-start;background:var(--card)}
+.aiin{display:flex;gap:.5rem;align-items:flex-end;position:sticky;bottom:calc(5.2rem + env(safe-area-inset-bottom,0));margin-top:.6rem}.aiin textarea{flex:1;resize:none;border-radius:14px;border:1px solid var(--line);padding:.6rem .8rem;font:inherit;background:var(--card);color:var(--ink)}
+.aib{font-size:1rem}
+/* Update 10: Wiederholung, Verlauf, Plan */
 .vl{margin-top:.8rem}.vlh{display:flex;justify-content:space-between;align-items:baseline}
 .vl svg{width:100%;height:auto;margin:.3rem 0}.vg{stroke:var(--line);stroke-width:1}.vt{fill:var(--mute);font-size:9px}.vp{fill:none;stroke:var(--blue);stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}.vd{fill:var(--card);stroke:var(--blue);stroke-width:2}
 .vs{display:flex;gap:.6rem}.vs>div{flex:1;text-align:center;padding:.4rem .2rem;border-radius:12px;background:color-mix(in srgb,var(--ink) 4%,transparent)}.vs b{display:block;font-size:1.15rem}.vs small{color:var(--mute);font-size:.72rem}.vs b.up{color:var(--green)}.vs b.dn{color:var(--red)}
@@ -397,7 +403,7 @@ h1{letter-spacing:-.02em}h2{letter-spacing:-.01em}
 /* ===== PLATZHALTER: hier später Impressum & Datenschutz eintragen ===== */
 const LEGAL={
  impressum:"Angaben gemäß § 5 TMG:\nJakob Speer\nLohwiesenstraße 25\n75417 Mühlacker\nDeutschland\n\nKontakt:\nE-Mail: studiq.lernapp@gmail.com\n\nVerantwortlich für den Inhalt nach § 55 Abs. 2 RStV:\nJakob Speer\nLohwiesenstraße 25\n75417 Mühlacker",
- datenschutz:"Datenschutz auf einen Blick\nDer Schutz deiner persönlichen Daten ist wichtig. Diese App verarbeitet personenbezogene Daten zur Bereitstellung eines Benutzerkontos und zur Speicherung deines Lernfortschritts.\n\nVerantwortliche Stelle\nJakob Speer\nLohwiesenstraße 25\n75417 Mühlacker\nE-Mail: studiq.lernapp@gmail.com\n\nRegistrierung und Benutzerkonto\nWenn du dich in der App registrierst, werden folgende Daten verarbeitet:\n- E-Mail-Adresse (zur Identifizierung und Anmeldung)\n- Passwort (wird ausschließlich verschlüsselt gespeichert)\n- Benutzername / Nickname\n- Lernfortschritt, Quizergebnisse und Einstellungen (zur Synchronisierung deines Account-Stands)\n\nHosting und Datenbankdienst (Cloud-Dienst)\nDie Datenverarbeitung erfolgt mithilfe eines externen Datenbank- und Authentifizierungsdienstes Supabase. Die Daten werden auf sicheren Servern gespeichert und nur zur Bereitstellung der App-Funktionen verwendet.\n\nSpeicherung von Daten auf deinem Gerät (Local Storage)\nZur Optimierung der Ladezeiten und für den Offline-Betrieb können temporäre Einstellungen und Sitzungsdaten im lokalen Speicher (localStorage) des Browsers abgelegt werden.\n\nDeine Rechte\nDu hast jederzeit das Recht auf Auskunft über deine gespeicherten personenbezogenen Daten sowie das Recht auf Berichtigung, Sperrung oder Löschung deines Kontos. Wende dich dafür einfach an die oben genannte E-Mail-Adresse."
+ datenschutz:"Datenschutz auf einen Blick\nDer Schutz deiner persönlichen Daten ist wichtig. Diese App verarbeitet personenbezogene Daten zur Bereitstellung eines Benutzerkontos und zur Speicherung deines Lernfortschritts.\n\nVerantwortliche Stelle\nJakob Speer\nLohwiesenstraße 25\n75417 Mühlacker\nE-Mail: studiq.lernapp@gmail.com\n\nRegistrierung und Benutzerkonto\nWenn du dich in der App registrierst, werden folgende Daten verarbeitet:\n- E-Mail-Adresse (zur Identifizierung und Anmeldung)\n- Passwort (wird ausschließlich verschlüsselt gespeichert)\n- Benutzername / Nickname\n- Lernfortschritt, Quizergebnisse und Einstellungen (zur Synchronisierung deines Account-Stands)\n\nHosting und Datenbankdienst (Cloud-Dienst)\nDie Datenverarbeitung erfolgt mithilfe eines externen Datenbank- und Authentifizierungsdienstes Supabase. Die Daten werden auf sicheren Servern gespeichert und nur zur Bereitstellung der App-Funktionen verwendet.\n\nSpeicherung von Daten auf deinem Gerät (Local Storage)\nZur Optimierung der Ladezeiten und für den Offline-Betrieb können temporäre Einstellungen und Sitzungsdaten im lokalen Speicher (localStorage) des Browsers abgelegt werden.\n\nKI-Chat (optional)\nWenn du den KI-Chat nutzt, werden deine Nachricht, die letzten Nachrichten des Chats und bei „Erklär mir das“ die betreffende Lernaufgabe über einen Server an Google (Gemini API) gesendet, um eine Antwort zu erzeugen. Dein Name und deine E-Mail-Adresse werden nicht mitgeschickt. Der Chat-Verlauf wird nicht gespeichert, gezählt wird nur die Zahl deiner Fragen pro Tag. Bitte schreibe keine persönlichen Daten in den Chat.\n\nDeine Rechte\nDu hast jederzeit das Recht auf Auskunft über deine gespeicherten personenbezogenen Daten sowie das Recht auf Berichtigung, Sperrung oder Löschung deines Kontos. Wende dich dafür einfach an die oben genannte E-Mail-Adresse."
 };
 /* ===== KLAUSUREN: weitere Klausuren hier als weiteres Objekt in EXAMS ergänzen
    (oder in den Einstellungen per JSON importieren) =====
@@ -893,7 +899,7 @@ async function syncCore(){
 let sp=null,again=false,sg0=null,rt=0;
 function sync(){if(!au)return Promise.resolve(false);if(sp){again=true;return sp}
  sg0=sig();ui.sync="busy";paintSync();
- sp=syncCore().then(async()=>{ui.sync="ok";ui.syncAt=Date.now();try{await pubStats()}catch(e){}return true},e=>{ui.sync="err";clearTimeout(rt);rt=setTimeout(()=>{if(au)sync()},25000);return false}).then(ok=>{sp=null;if(again){again=false;return sync()}afterSync();return ok});
+ sp=syncCore().then(async()=>{ui.sync="ok";ui.syncAt=Date.now();try{await pubStats()}catch(e){}try{aiStatus()}catch(e){}return true},e=>{ui.sync="err";clearTimeout(rt);rt=setTimeout(()=>{if(au)sync()},25000);return false}).then(ok=>{sp=null;if(again){again=false;return sync()}afterSync();return ok});
  return sp}
 function afterSync(){paintSync();if(st.view==="teams"&&au)refreshTeams();if(!au&&sbOn()){render();return}if(sig()!==sg0)softRender()}
 /* nie neu zeichnen, während der Nutzer gerade tippt */
@@ -1100,7 +1106,7 @@ function render(){
  const app=$("#app");app.dataset.enter=ch?"1":"0";
  let h;
  if(ui.boot)h=`<div class="boot"><div><div class="spin"></div><p>Lernstand wird geladen …</p></div></div>`;
- else{h=({plan:vPlan,home:vHome,quiz:vQuiz,terms:vTerms,voc:vVoc,info:vInfo,set:vSet,auth:vAuth,adm:vAdm,teams:vTeams,dash:vDash}[v]||vHome)();
+ else{h=({plan:vPlan,home:vHome,quiz:vQuiz,terms:vTerms,voc:vVoc,info:vInfo,set:vSet,auth:vAuth,adm:vAdm,teams:vTeams,dash:vDash,chat:vChat}[v]||vHome)();
   if(v!=="home"&&v!=="auth"&&v!=="set")h=topbar()+h;
   if(isAdmin()&&(v==="home"||v==="set"||v==="dash"))h=admBanner()+h;
   if(v!=="set")h+=legalFoot();
@@ -1152,6 +1158,7 @@ function vHome(){const s=st.set,run=st.run&&!st.run.done?st.run:null,ts=allX().f
  <div class="hs"><div class="hn"><b>${sk}</b><span>${sk===1?"Lerntag":"Lerntage"} in Folge</span></div><div class="hx">${cap(true)}<b>${st.xp||0}</b> XP gesamt</div><div class="mute">${x>=g?"Tagesziel erreicht":"Noch "+(g-x)+" XP bis zum Tagesziel"}</div></div></div>
  <div class="wkd">${days.map(([d,l])=>`<div class="${s.fmod&&isFrei(d)?"fz":""}">${cap(st.days.includes(d))}<span>${l}</span></div>`).join("")}</div><div class="sy">${syncPill()}</div></div>
  ${run?`<button class="btn pri" style="margin-top:.8rem" data-a="resume">Quiz fortsetzen (${run.i+1}/${run.ids.length})</button>`:""}
+ ${aiVisible()?`<button class="btn aient" data-a="aigo">💬 Frag die KI</button>`:""}
  <h2>Heute dran</h2><div class="card tdy">${it.length?it.map(o=>`<div class="ti"><span class="tic">${o.ic}</span><span class="tx"><b>${E(o.t)}</b><small>${E(o.s)}</small></span><button class="btn sm pri" data-a="hgo" data-v="${E(o.v)}">${o.b}</button></div>`).join(""):`<span class="mute">Nichts offen. Such dir unten ein Fach und lerne weiter.</span>`}</div>
  <h2>Klassenarbeiten</h2>${ts[0]?cdCard(ts[0]):""}<div class="card">${ts.length?ts.slice(0,4).map(x=>`<div class="hist"><span>${E(x.f)}${x.t?" · "+E(x.t):""}${x.g?" · für alle":""}</span><b>${dleft(x.d)?"in "+dleft(x.d)+" Tagen":"Heute!"}</b></div>`).join(""):`<span class="mute">Keine Termine. Trage sie unter „Optionen“ oder im Planer ein.</span>`}${nf&&(nf.cur||nf.d<=60)?`<div class="hist"><span>🌴 ${E(nf.n)}${nf.cur?" bis "+fmtD(nf.e):" ab "+fmtD(nf.s)}</span><b>${nf.cur?"jetzt":"in "+nf.d+" Tagen"}</b></div>`:""}</div>
  ${LS.length?`<h2>Lernstand</h2><div class="card ls">${LS.map(([f,o])=>`<div class="lsr"><b class="bd" style="background:${fkc(f)}">${E(fk(f)[0])}</b><span class="lsn">${E(f)}</span><div class="bar"><i style="width:${o.p}%;background:${fkc(f)}"></i></div><em>${o.p}%</em></div>`).join("")}</div>`:""}
@@ -1204,7 +1211,7 @@ function runView(r){const ex=exams().find(e=>e.id===r.ex)||cur(),map=Object.from
   return`<div class="mrow ${c}"><span>${E(pr[0])}</span><select data-m="${k}" ${lock?"disabled":""}><option value="">Wählen …</option>${ord.map(ri=>`<option value="${ri}" ${v===ri?"selected":""}>${E(q.o[ri][1])}</option>`).join("")}</select></div>`}).join("")}
  const needChk=typed&&r.mode==="training"&&!lock;
  const willRep=r.mode==="training"&&r.phase!==1&&r.ids.some(i=>map[i]&&r.a[i]!==undefined&&!okf(r,map[i],i));
- return`${r.tl?`<div class="tmr ${tmRem(r)<=60?"low":""}" id="tmr">${tmFmt(tmRem(r))}</div>`:""}<div class="tagrow"><div class="tag">${r.phase===1?"Wiederholung · ":""}${E(q.t)} · ${TYN[ty]} · Frage ${r.i+1} von ${r.ids.length}</div><span class="acts">${helpBtn(id)}${flagBtn("q",id)}</span></div><div class="bar"><i style="width:${100*r.i/r.ids.length}%"></i></div><div class="hbox box merk" id="hb-${E(id)}" hidden>${helpHtml(q,ex)}</div>${typed?"":`<div class="q">${E(q.q)}</div>`}${body}
+ return`${r.tl?`<div class="tmr ${tmRem(r)<=60?"low":""}" id="tmr">${tmFmt(tmRem(r))}</div>`:""}<div class="tagrow"><div class="tag">${r.phase===1?"Wiederholung · ":""}${E(q.t)} · ${TYN[ty]} · Frage ${r.i+1} von ${r.ids.length}</div><span class="acts">${lock?aiBtn(id):""}${helpBtn(id)}${flagBtn("q",id)}</span></div><div class="bar"><i style="width:${100*r.i/r.ids.length}%"></i></div><div class="hbox box merk" id="hb-${E(id)}" hidden>${helpHtml(q,ex)}</div>${typed?"":`<div class="q">${E(q.q)}</div>`}${body}
  ${ui.hint&&needChk?`<p class="mute">${E(ui.hint)}</p>`:""}
  ${lock?`<div class="box ${good?"merk":"falle"}"><b>${good?"Richtig":"Leider falsch"}</b>${good?"":`Richtig ist: ${corr(q)}<br>`}${E(q.w)}</div>${r.phase!==1?`<div class="corr"><button class="chip" data-a="flip">${good?"Doch als falsch werten":"Trotzdem als richtig werten"}</button></div>`:""}`:""}
  <div class="row" style="margin-top:1rem"><button class="btn" data-a="quit">Abbrechen</button>${needChk?`<button class="btn pri" data-a="chk">Prüfen</button>`:`<button class="btn pri" data-a="next" ${!typed&&ans===undefined?"disabled":""}>${r.i+1===r.ids.length?(willRep?"Falsche wiederholen":"Auswerten"):"Weiter"}</button>`}</div>`}
@@ -1220,7 +1227,7 @@ document.addEventListener("visibilitychange",()=>{const r=st.run;if(!document.hi
 function resultView(r){const ex=exams().find(e=>e.id===r.ex)||cur(),map=Object.fromEntries(QL(ex).map(x=>[x.id,x])),R=R0(r),ok=R.ids.filter(i=>map[i]&&okf(R,map[i],i)).length,n=R.ids.length||1,bad=R.ids.filter(i=>map[i]&&!okf(R,map[i],i));
  return`<h1>Ergebnis</h1>${ok/n>=.7?'<div class="thumb">👍</div>':""}${ok===n?'<span class="perfect"></span>':""}<div class="card"><div class="big">${ok}/${n}</div><p class="mute">${Math.round(100*ok/n)}% richtig · ${ok===n?"Fehlerfrei!":ok/n>=.75?"Stark, fast sicher.":"Noch üben, schau dir die Fehler an."}</p>${r.mode==="exam"?gradeBox(ok/n,r):""}</div>
  ${r.res0?`<p class="mute">Die falsch beantworteten Fragen wurden am Ende nochmal wiederholt. Gewertet wird der erste Durchgang.</p>`:""}
- ${bad.length?`<h2>Das war falsch</h2>${bad.map(i=>{const q=map[i];return`<div class="card"><div class="tagrow"><b>${E(q.q)}</b>${flagBtn("q",i)}</div><p class="mute">Deine Antwort: ${mine(q,R.a[i])}</p><div class="box merk"><b>Richtig: ${corr(q)}</b>${E(q.w)}</div><button class="chip" data-a="rflip" data-v="${E(i)}">Trotzdem als richtig werten</button></div>`}).join("")}`:""}
+ ${bad.length?`<h2>Das war falsch</h2>${bad.map(i=>{const q=map[i];return`<div class="card"><div class="tagrow"><b>${E(q.q)}</b><span class="acts">${aiBtn(i)}${flagBtn("q",i)}</span></div><p class="mute">Deine Antwort: ${mine(q,R.a[i])}</p><div class="box merk"><b>Richtig: ${corr(q)}</b>${E(q.w)}</div><button class="chip" data-a="rflip" data-v="${E(i)}">Trotzdem als richtig werten</button></div>`}).join("")}`:""}
  <div class="row"><button class="btn pri" data-a="again">Neue Runde</button><button class="btn" data-a="go" data-v="terms">Begriffe wiederholen</button></div>`}
 function start(){const ex=cur(),s=st.set;if(!ex)return;ui.qmsg="";let pool=QL(ex).filter(x=>(!s.topics.length||s.topics.includes(x.t))&&(!s.qt||s.qt==="all"||x.ty===s.qt));
  if(ui.onlyWrong)pool=pool.filter(x=>st.qs[x.id]&&st.qs[x.id].l===0);
@@ -1228,6 +1235,34 @@ function start(){const ex=cur(),s=st.set;if(!ex)return;ui.qmsg="";let pool=QL(ex
  if(!pool.length){ui.qmsg=ui.onlyWrong?"Keine offenen Fehler in dieser Auswahl.":ui.qDue?"Heute ist in dieser Auswahl nichts fällig.":"Keine passenden Fragen.";return}
  if(ui.qWeak){const TS=Object.fromEntries(topicStats(ex).map(a=>[a.t,a]));pool=wshuf(pool,x=>weakW(x,TS))}else pool=wshuf(pool);if(+s.count)pool=pool.slice(0,+s.count);
  st.run={ex:ex.id,ids:pool.map(x=>x.id),p:Object.fromEntries(pool.map(x=>{const b=x.o.map((_,i)=>i);return[x.id,x.ty==="tf"||x.ty==="fill"?b:s.shuffle?shuf(b):b]})),a:{},i:0,mode:s.mode,done:false};if(s.mode==="exam"&&+s.tlim>0){st.run.tl=+s.tlim*60;st.run.t0=Date.now()}save()}
+
+/* ===== KI-Chat (Server: Supabase Edge Function ai-chat, Key liegt nur dort) ===== */
+const aiVisible=()=>!!au&&(isAdmin()||!!(ui.ai&&ui.ai.open));
+const aiBtn=id=>aiVisible()?`<button class="flag aib" data-a="aiq" data-v="${E(id)}" aria-label="KI erklärt das" title="KI erklärt das">💬</button>`:"";
+const txt=h=>{const d=document.createElement("div");d.innerHTML=h;return d.textContent||""};
+async function aiStatus(){if(!au||ui.aiAt&&Date.now()-ui.aiAt<6e5)return;ui.aiAt=Date.now();try{const r=await tapi("/functions/v1/ai-chat",{method:"POST",body:JSON.stringify({action:"status"})});ui.ai={open:!!r.open,left:+r.left,limit:+r.limit}}catch(e){ui.ai=ui.ai||{open:false}}if(st.view==="home")softRender()}
+function aiFmt(t){const L=String(t).split("\n").map(x=>x.trim()).filter(Boolean);let h="",ul=false;
+ for(const l of L){const b=/^[-*•]\s+/.test(l),c=E(l.replace(/^[-*•]\s+/,"")).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+  if(b){if(!ul){h+="<ul>";ul=true}h+="<li>"+c+"</li>"}else{if(ul){h+="</ul>";ul=false}h+="<p>"+c+"</p>"}}
+ return h+(ul?"</ul>":"")}
+function vChat(){const c=ui.chat||(ui.chat={msgs:[],ctx:"",busy:false,err:"",draft:""}),lim=ui.ai&&ui.ai.limit||50,left=ui.ai&&ui.ai.left;
+ const last=c.msgs[c.msgs.length-1];
+ return`<div class="aihd"><h1>KI-Hilfe</h1><button class="chip" data-a="aiback">Zurück</button></div>
+ <p class="mute" style="margin:.1rem 0 .6rem;font-size:.82rem">Kurze Erklärungen zu Schulthemen. Die KI kann sich irren, prüfe Wichtiges im Stoff. Schreib keine persönlichen Daten.${left!=null&&!isNaN(left)?` Heute noch ${left} von ${lim} Fragen.`:""}</p>
+ <div class="aic" id="aic">${c.msgs.length?c.msgs.map(m=>`<div class="aim ${m.role==="user"?"me":"ki"}">${m.role==="user"?"<p>"+E(m.text)+"</p>":aiFmt(m.text)}</div>`).join(""):`<div class="aim ki"><p>Frag mich etwas zu ${E(st.set.fach)} oder einem anderen Fach, zum Beispiel „Was ist Osmose?“ oder „Wie löse ich eine quadratische Gleichung?“.</p></div>`}
+ ${c.busy?`<div class="aim ki"><p class="mute">Denkt nach …</p></div>`:""}${c.err?`<div class="box amber"><b>Hinweis</b>${E(c.err)}</div>`:""}<span id="aiend"></span></div>
+ ${last&&last.role==="model"&&!c.busy?`<div class="chips" style="margin:.4rem 0"><button class="chip" data-a="aisend" data-v="Erkläre ausführlicher.">Ausführlicher</button><button class="chip" data-a="aisend" data-v="Gib mir ein einfaches Beispiel.">Beispiel</button><button class="chip" data-a="aisend" data-v="Erkläre es noch einfacher.">Einfacher</button></div>`:""}
+ <div class="aiin"><textarea id="aiin" rows="2" maxlength="500" placeholder="Deine Frage …" ${c.busy?"disabled":""}>${E(c.draft||"")}</textarea><button class="btn pri" data-a="aisend" ${c.busy?"disabled":""}>Senden</button></div>`}
+async function aiSend(text){const c=ui.chat;if(!c||c.busy)return;text=String(text||"").trim().slice(0,500);if(!text)return;
+ c.msgs.push({role:"user",text});c.draft="";c.err="";c.busy=true;render();aiScroll();
+ try{const r=await tapi("/functions/v1/ai-chat",{method:"POST",body:JSON.stringify({messages:c.msgs.slice(-7),ctx:c.ctx})});
+  c.msgs.push({role:"model",text:r.text});ui.ai={...(ui.ai||{}),open:true,left:+r.left}}
+ catch(e){c.msgs.pop();c.err=e.st===429?"Heute sind deine Fragen aufgebraucht. Morgen geht es weiter.":e.st===503?"Die KI ist gerade nicht erreichbar. Bitte in einer Minute nochmal versuchen.":e.st===403?"Der KI-Chat ist noch nicht für dich freigeschaltet.":e.st===404?"Serverteil fehlt noch: Die Function ai-chat ist nicht eingerichtet.":e.st===401?"Bitte neu anmelden.":"Das hat nicht geklappt. Bitte nochmal versuchen.";if(e.st!==429&&e.st!==503)c.draft=text;else c.draft=text}
+ c.busy=false;render();aiScroll()}
+function aiScroll(){setTimeout(()=>{const e=document.getElementById("aiend");if(e)e.scrollIntoView({block:"end"})},30)}
+function aiOpen(ctx,first){ui.chat={msgs:[],ctx:ctx||"Fach: "+st.set.fach,busy:false,err:"",draft:""};st.view="chat";save();render();window.scrollTo(0,0);if(first)aiSend(first)}
+function aiQCtx(id){const ex=exams().find(e=>e.id===(st.run&&st.run.ex))||cur(),q=ex&&QL(ex).find(x=>x.id===id);if(!q)return"Fach: "+st.set.fach;
+ return"Fach: "+ex.fach+(q.t?" · Thema: "+q.t:"")+"\nAufgabe: "+q.q+"\nRichtige Lösung: "+txt(corr(q).replace(/<br>/g," ; "))+(q.w?"\nErklärung der App: "+q.w:"")}
 
 /* ===== Begriffe (Lernen + Abfrage) ===== */
 function vTerms(){const ex=cur(),head=`<h1>Begriffe</h1>${lockBar()}`;
@@ -1611,6 +1646,10 @@ function act(a,v){const s=st.set;
   ui.qDue=ui.qWeak=false;if(op==="due")ui.vDue=true;if(op==="qdue")ui.qDue=true;if(op==="wrong"){vw==="voc"?ui.vWrong=true:ui.onlyWrong=true}
   if(op==="plan"){const x=allX().filter(a=>a.f===f&&dleft(a.d)>=0).sort((a,b)=>a.d<b.d?-1:1)[0],tp=x&&todayPlan(x);if(tp&&tp.items.length){const e0=tp.items[0].ex;s.exam=e0;s.topics=[...new Set(tp.items.filter(i=>i.ex===e0).map(i=>i.t))];vw="quiz"}}
   if(vw==="auto"){const cp=caps(cur());vw=["quiz","terms","voc","info"].find(k=>cp[k]&&!(k==="voc"&&!isLang()))||"home"}st.view=vw}
+ else if(a==="aigo"){aiOpen("Fach: "+st.set.fach);return}
+ else if(a==="aiback"){const q=st.run&&!st.run.done;st.view=q?"quiz":"home";save();render();return}
+ else if(a==="aiq"){aiOpen(aiQCtx(v),"Erkläre mir das kurz: Warum ist das die richtige Lösung?");return}
+ else if(a==="aisend"){const t=v||(document.getElementById("aiin")||{}).value;aiSend(t);return}
  else if(a==="plx"){ui.plx=ui.plx===v?"":v}
  else if(a==="plgo"){s.fach=v;s.exam="";s.topics=[];s.pf=s.pt="";vr=null;tr=null;kc=null;if(st.run&&st.run.done)st.run=null;st.view="home"}
  else if(a==="paddx"){const d=ui.pd,f=$("#pxf").value,t=$("#pxt").value.trim().slice(0,40);if(!d||(f==="Frei"?d<ld(Date.now()):gxExp({d}))){ui.msg="Dieser Tag ist vorbei.";render();return}
