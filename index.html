@@ -155,6 +155,8 @@ button.pill{cursor:pointer}.pill .cap{width:20px;height:20px}
 .tw th.n,.tw td.n{white-space:nowrap;width:1%;text-align:center}
 .tcap{font-size:.8rem;color:var(--mute);margin:.8rem 0 -.5rem}
 /* KI-Chat */
+.aifab{position:fixed;left:.9rem;bottom:calc(5.4rem + env(safe-area-inset-bottom,0));width:48px;height:48px;border-radius:16px;border:1px solid var(--line);background:var(--card);box-shadow:0 6px 18px rgba(0,0,0,.18);font-size:1.4rem;line-height:1;z-index:6;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent}
+.aisv{display:block;width:100%;text-align:left;cursor:pointer;margin:.5rem 0;font:inherit;color:inherit}.aisv b{display:block}.aisv small{color:var(--mute)}
 .aient{width:100%;margin-top:.8rem}.aihd{display:flex;justify-content:space-between;align-items:center}
 .aic{display:flex;flex-direction:column;gap:.5rem;margin:.4rem 0}.aim{max-width:92%;padding:.55rem .8rem;border-radius:16px;font-size:.93rem;line-height:1.45;border:1px solid var(--line)}
 .aim p{margin:.15rem 0}.aim ul{margin:.2rem 0;padding-left:1.1rem}.aim.me{align-self:flex-end;background:color-mix(in srgb,var(--blue) 14%,transparent)}.aim.ki{align-self:flex-start;background:var(--card)}
@@ -573,7 +575,7 @@ function xpFix(s){if(typeof s.xb!=="number"||!isFinite(s.xb)||s.xb<0)s.xb=Math.m
 const xpSave=()=>{try{localStorage.setItem(XPK,JSON.stringify({b:st.xb,g:st.xg}))}catch(e){}};
 const norm=o=>{o=o&&typeof o==="object"&&!Array.isArray(o)?o:{};const s={ov:{},qs:{},tm:{},tmt:{},hist:[],custom:[],exd:[],days:[],dk:[],xlog:{},dh:{},del:{},star:{},xp:0,rst:0,set_t:0,run:null,view:"home",...o};
  for(const k of["ov","qs","tm","tmt","del","star"])if(!s[k]||typeof s[k]!=="object"||Array.isArray(s[k]))s[k]={};
- for(const k of["hist","custom","exd","days"])if(!Array.isArray(s[k]))s[k]=[];
+ for(const k of["hist","custom","exd","days","chats"])if(!Array.isArray(s[k]))s[k]=[];
  s.set={...D,...(s.set&&typeof s.set==="object"?s.set:{})};if(!FACH.includes(s.set.fach))s.set.fach="VBL";return xpFix(s)};
 let st;try{st=norm(JSON.parse(localStorage.getItem(KEY)))}catch(e){st=norm({})}
 try{const k=JSON.parse(localStorage.getItem(XPK));if(k&&typeof k==="object"){st.xb=Math.max(st.xb||0,+k.b||0);for(const[a,v]of Object.entries(k.g||{}))if(+v>0)st.xg[a]=Math.max(st.xg[a]||0,+v);xpFix(st)}}catch(e){}
@@ -606,6 +608,7 @@ function merge(L,R){
  M.days=[...new Set([...R.days,...L.days])].filter(Boolean).sort().slice(-90);
  M.xb=Math.max(L.xb||0,R.xb||0);M.xg={...(R.xg||{})};for(const[k,v]of Object.entries(L.xg||{}))M.xg[k]=Math.max(M.xg[k]||0,+v||0);xpFix(M);M.dk=[...new Set([...(R.dk||[]),...(L.dk||[])])];M.xlog={...R.xlog};for(const[k,v]of Object.entries(L.xlog||{}))M.xlog[k]=Math.max(M.xlog[k]||0,v);M.dh={...(R.dh||{})};for(const[k,v]of Object.entries(L.dh||{}))M.dh[k]=Math.max(M.dh[k]||0,v);
  const hm=new Map();for(const h of[...R.hist,...L.hist])if(h&&h.d&&(!rst||h.d>rst))hm.set(h.d+"|"+h.ex,h);M.hist=[...hm.values()].sort((a,b)=>b.d-a.d).slice(0,200);
+ {const cx=new Map();for(const c of[...R.chats,...L.chats]){if(!c||!c.id)continue;const o=cx.get(c.id);if(!o||(c.t||0)>=(o.t||0))cx.set(c.id,c)}M.chats=[...cx.values()].sort((a,b)=>(b.t||0)-(a.t||0)).slice(0,160)}
  const exk=x=>"e:"+x.f+"|"+x.d+"|"+(x.t||""),em=new Map();for(const x of[...R.exd,...L.exd])if(x&&x.d&&!gone(exk(x),x.mt))em.set(exk(x),x);M.exd=[...em.values()];
  M.set_t=Math.max(L.set_t||0,R.set_t||0);M.set={...D,...L.set};
  if((R.set_t||0)>(L.set_t||0))for(const k of SYNCSET)if(R.set[k]!==undefined&&(k!=="nick"||R.set.nick))M.set[k]=R.set[k];
@@ -1106,10 +1109,11 @@ function render(){
  const app=$("#app");app.dataset.enter=ch?"1":"0";
  let h;
  if(ui.boot)h=`<div class="boot"><div><div class="spin"></div><p>Lernstand wird geladen …</p></div></div>`;
- else{h=({plan:vPlan,home:vHome,quiz:vQuiz,terms:vTerms,voc:vVoc,info:vInfo,set:vSet,auth:vAuth,adm:vAdm,teams:vTeams,dash:vDash,chat:vChat}[v]||vHome)();
+ else{h=({plan:vPlan,home:vHome,quiz:vQuiz,terms:vTerms,voc:vVoc,info:vInfo,set:vSet,auth:vAuth,adm:vAdm,teams:vTeams,dash:vDash,chat:vChat,chats:vChats}[v]||vHome)();
   if(v!=="home"&&v!=="auth"&&v!=="set")h=topbar()+h;
   if(isAdmin()&&(v==="home"||v==="set"||v==="dash"))h=admBanner()+h;
   if(v!=="set")h+=legalFoot();
+  if(aiVisible()&&v!=="auth"&&v!=="chat"&&v!=="chats"&&!(v==="quiz"&&st.run&&!st.run.done))h+=`<button class="aifab" data-a="aigo" aria-label="KI-Chat öffnen" title="KI-Chat">💬</button>`;
   if(ui.assign)h+=assignModal();
   if(ui.guide!=null)h+=guideModal();
   if(ui.prof)h+=profModal();
@@ -1158,7 +1162,6 @@ function vHome(){const s=st.set,run=st.run&&!st.run.done?st.run:null,ts=allX().f
  <div class="hs"><div class="hn"><b>${sk}</b><span>${sk===1?"Lerntag":"Lerntage"} in Folge</span></div><div class="hx">${cap(true)}<b>${st.xp||0}</b> XP gesamt</div><div class="mute">${x>=g?"Tagesziel erreicht":"Noch "+(g-x)+" XP bis zum Tagesziel"}</div></div></div>
  <div class="wkd">${days.map(([d,l])=>`<div class="${s.fmod&&isFrei(d)?"fz":""}">${cap(st.days.includes(d))}<span>${l}</span></div>`).join("")}</div><div class="sy">${syncPill()}</div></div>
  ${run?`<button class="btn pri" style="margin-top:.8rem" data-a="resume">Quiz fortsetzen (${run.i+1}/${run.ids.length})</button>`:""}
- ${aiVisible()?`<button class="btn aient" data-a="aigo">💬 Frag die KI</button>`:""}
  <h2>Heute dran</h2><div class="card tdy">${it.length?it.map(o=>`<div class="ti"><span class="tic">${o.ic}</span><span class="tx"><b>${E(o.t)}</b><small>${E(o.s)}</small></span><button class="btn sm pri" data-a="hgo" data-v="${E(o.v)}">${o.b}</button></div>`).join(""):`<span class="mute">Nichts offen. Such dir unten ein Fach und lerne weiter.</span>`}</div>
  <h2>Klassenarbeiten</h2>${ts[0]?cdCard(ts[0]):""}<div class="card">${ts.length?ts.slice(0,4).map(x=>`<div class="hist"><span>${E(x.f)}${x.t?" · "+E(x.t):""}${x.g?" · für alle":""}</span><b>${dleft(x.d)?"in "+dleft(x.d)+" Tagen":"Heute!"}</b></div>`).join(""):`<span class="mute">Keine Termine. Trage sie unter „Optionen“ oder im Planer ein.</span>`}${nf&&(nf.cur||nf.d<=60)?`<div class="hist"><span>🌴 ${E(nf.n)}${nf.cur?" bis "+fmtD(nf.e):" ab "+fmtD(nf.s)}</span><b>${nf.cur?"jetzt":"in "+nf.d+" Tagen"}</b></div>`:""}</div>
  ${LS.length?`<h2>Lernstand</h2><div class="card ls">${LS.map(([f,o])=>`<div class="lsr"><b class="bd" style="background:${fkc(f)}">${E(fk(f)[0])}</b><span class="lsn">${E(f)}</span><div class="bar"><i style="width:${o.p}%;background:${fkc(f)}"></i></div><em>${o.p}%</em></div>`).join("")}</div>`:""}
@@ -1245,14 +1248,31 @@ function aiFmt(t){const L=String(t).split("\n").map(x=>x.trim()).filter(Boolean)
  for(const l of L){const b=/^[-*•]\s+/.test(l),c=E(l.replace(/^[-*•]\s+/,"")).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
   if(b){if(!ul){h+="<ul>";ul=true}h+="<li>"+c+"</li>"}else{if(ul){h+="</ul>";ul=false}h+="<p>"+c+"</p>"}}
  return h+(ul?"</ul>":"")}
-function vChat(){const c=ui.chat||(ui.chat={msgs:[],ctx:"",busy:false,err:"",draft:""}),lim=ui.ai&&ui.ai.limit||50,left=ui.ai&&ui.ai.left;
+function vChat(){const c=ui.chat||(ui.chat=aiNew()),lim=ui.ai&&ui.ai.limit||50,left=ui.ai&&ui.ai.left;
  const last=c.msgs[c.msgs.length-1];
+ const nsv=(st.chats||[]).filter(x=>x&&!x.d).length,saved=c.sid&&c.sn===c.msgs.length;
  return`<div class="aihd"><h1>KI-Hilfe</h1><button class="chip" data-a="aiback">Zurück</button></div>
+ <div class="chips" style="margin:.2rem 0 .5rem"><button class="chip ${saved?"on":""}" data-a="aisave" ${c.msgs.length&&!saved?"":"disabled"}>${saved?"✓ Gespeichert":c.sid?"💾 Aktualisieren":"💾 Chat speichern"}</button><button class="chip" data-a="aichats">📚 Gespeicherte Chats (${nsv})</button>${c.msgs.length?`<button class="chip" data-a="aineu">➕ Neuer Chat</button>`:""}</div>
  <p class="mute" style="margin:.1rem 0 .6rem;font-size:.82rem">Kurze Erklärungen zu Schulthemen. Die KI kann sich irren, prüfe Wichtiges im Stoff. Schreib keine persönlichen Daten.${left!=null&&!isNaN(left)?` Heute noch ${left} von ${lim} Fragen.`:""}</p>
  <div class="aic" id="aic">${c.msgs.length?c.msgs.map(m=>`<div class="aim ${m.role==="user"?"me":"ki"}">${m.role==="user"?"<p>"+E(m.text)+"</p>":aiFmt(m.text)}</div>`).join(""):`<div class="aim ki"><p>Frag mich etwas zu ${E(st.set.fach)} oder einem anderen Fach, zum Beispiel „Was ist Osmose?“ oder „Wie löse ich eine quadratische Gleichung?“.</p></div>`}
  ${c.busy?`<div class="aim ki"><p class="mute">Denkt nach …</p></div>`:""}${c.err?`<div class="box amber"><b>Hinweis</b>${E(c.err)}</div>`:""}<span id="aiend"></span></div>
  ${last&&last.role==="model"&&!c.busy?`<div class="chips" style="margin:.4rem 0"><button class="chip" data-a="aisend" data-v="Erkläre ausführlicher.">Ausführlicher</button><button class="chip" data-a="aisend" data-v="Gib mir ein einfaches Beispiel.">Beispiel</button><button class="chip" data-a="aisend" data-v="Erkläre es noch einfacher.">Einfacher</button></div>`:""}
- <div class="aiin"><textarea id="aiin" rows="2" maxlength="500" placeholder="Deine Frage …" ${c.busy?"disabled":""}>${E(c.draft||"")}</textarea><button class="btn pri" data-a="aisend" ${c.busy?"disabled":""}>Senden</button></div>`}
+ <div class="aiin"><textarea id="aiin" rows="2" maxlength="500" placeholder="Frage eingeben oder Text einfügen (max. 500 Zeichen)" ${c.busy?"disabled":""}>${E(c.draft||"")}</textarea><button class="btn pri" data-a="aisend" ${c.busy?"disabled":""}>Senden</button></div>`}
+function aiKeep(){const t=document.getElementById("aiin");if(t&&ui.chat)ui.chat.draft=t.value}
+const aiNew=()=>({msgs:[],ctx:"Fach: "+st.set.fach,busy:false,err:"",draft:"",sid:"",sn:0});
+function aiSave(){const c=ui.chat;if(!c||!c.msgs.length)return;const L=(st.chats||[]).filter(x=>x&&!x.d);
+ if(!c.sid&&L.length>=60){toast("Maximal 60 gespeicherte Chats. Bitte erst alte löschen.");return}
+ const id=c.sid||("c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),fu=c.msgs.find(m=>m.role==="user"),
+  e={id,t:Date.now(),f:st.set.fach,ti:String(fu?fu.text:"Chat").slice(0,70),m:c.msgs.map(m=>({r:m.role==="user"?"u":"k",x:String(m.text).slice(0,4000)})),cx:String(c.ctx||"").slice(0,1200)};
+ st.chats=[e,...(st.chats||[]).filter(x=>x&&x.id!==id)];c.sid=id;c.sn=c.msgs.length;save();render();toast("Chat gespeichert")}
+function vChats(){const L=(st.chats||[]).filter(x=>x&&!x.d&&Array.isArray(x.m)).sort((a,b)=>(b.t||0)-(a.t||0)),dt=t=>new Date(t).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"2-digit"}),
+  cv=ui.cv&&L.find(x=>x.id===ui.cv);
+ if(cv)return`<div class="aihd"><h1>Gespeicherter Chat</h1><button class="chip" data-a="aichats">Zur Liste</button></div>
+ <p class="mute" style="margin:.1rem 0 .5rem;font-size:.82rem">${E(cv.f||"")} · ${dt(cv.t)}</p>
+ <div class="aic">${cv.m.map(m=>`<div class="aim ${m.r==="u"?"me":"ki"}">${m.r==="u"?"<p>"+E(m.x)+"</p>":aiFmt(m.x)}</div>`).join("")}</div>
+ <div class="chips" style="margin:.6rem 0"><button class="chip on" data-a="aicont" data-v="${E(cv.id)}">💬 Weiter fragen</button><button class="chip" data-a="aidel" data-v="${E(cv.id)}">${ui.cdel===cv.id?"Wirklich löschen?":"🗑 Löschen"}</button></div>`;
+ return`<div class="aihd"><h1>Gespeicherte Chats</h1><button class="chip" data-a="aitochat">Zum Chat</button></div>
+ ${L.length?L.map(x=>`<button class="card aisv" data-a="aiopenc" data-v="${E(x.id)}"><b>${E(x.ti||"Chat")}</b><small>${E(x.f||"")} · ${dt(x.t)} · ${x.m.length} Nachrichten</small></button>`).join(""):`<div class="card"><p class="mute" style="margin:0">Noch nichts gespeichert. Im Chat auf „Chat speichern“ tippen, dann erscheint er hier.</p></div>`}`}
 async function aiSend(text){const c=ui.chat;if(!c||c.busy)return;text=String(text||"").trim().slice(0,500);if(!text)return;
  c.msgs.push({role:"user",text});c.draft="";c.err="";c.busy=true;render();aiScroll();
  try{const r=await tapi("/functions/v1/ai-chat",{method:"POST",body:JSON.stringify({messages:c.msgs.slice(-7),ctx:c.ctx})});
@@ -1260,7 +1280,7 @@ async function aiSend(text){const c=ui.chat;if(!c||c.busy)return;text=String(tex
  catch(e){c.msgs.pop();c.err=e.st===429?"Heute sind deine Fragen aufgebraucht. Morgen geht es weiter.":e.st===503?"Die KI ist gerade nicht erreichbar. Bitte in einer Minute nochmal versuchen.":e.st===403?"Der KI-Chat ist noch nicht für dich freigeschaltet.":e.st===404?"Serverteil fehlt noch: Die Function ai-chat ist nicht eingerichtet.":e.st===401?"Bitte neu anmelden.":"Das hat nicht geklappt. Bitte nochmal versuchen.";if(e.st!==429&&e.st!==503)c.draft=text;else c.draft=text}
  c.busy=false;render();aiScroll()}
 function aiScroll(){setTimeout(()=>{const e=document.getElementById("aiend");if(e)e.scrollIntoView({block:"end"})},30)}
-function aiOpen(ctx,first){ui.chat={msgs:[],ctx:ctx||"Fach: "+st.set.fach,busy:false,err:"",draft:""};st.view="chat";save();render();window.scrollTo(0,0);if(first)aiSend(first)}
+function aiOpen(ctx,first){if(st.view!=="chat"&&st.view!=="chats")ui.aiPrev=st.view;ui.chat={...aiNew(),ctx:ctx||"Fach: "+st.set.fach};st.view="chat";save();render();window.scrollTo(0,0);if(first)aiSend(first)}
 function aiQCtx(id){const ex=exams().find(e=>e.id===(st.run&&st.run.ex))||cur(),q=ex&&QL(ex).find(x=>x.id===id);if(!q)return"Fach: "+st.set.fach;
  return"Fach: "+ex.fach+(q.t?" · Thema: "+q.t:"")+"\nAufgabe: "+q.q+"\nRichtige Lösung: "+txt(corr(q).replace(/<br>/g," ; "))+(q.w?"\nErklärung der App: "+q.w:"")}
 
@@ -1646,8 +1666,15 @@ function act(a,v){const s=st.set;
   ui.qDue=ui.qWeak=false;if(op==="due")ui.vDue=true;if(op==="qdue")ui.qDue=true;if(op==="wrong"){vw==="voc"?ui.vWrong=true:ui.onlyWrong=true}
   if(op==="plan"){const x=allX().filter(a=>a.f===f&&dleft(a.d)>=0).sort((a,b)=>a.d<b.d?-1:1)[0],tp=x&&todayPlan(x);if(tp&&tp.items.length){const e0=tp.items[0].ex;s.exam=e0;s.topics=[...new Set(tp.items.filter(i=>i.ex===e0).map(i=>i.t))];vw="quiz"}}
   if(vw==="auto"){const cp=caps(cur());vw=["quiz","terms","voc","info"].find(k=>cp[k]&&!(k==="voc"&&!isLang()))||"home"}st.view=vw}
- else if(a==="aigo"){aiOpen("Fach: "+st.set.fach);return}
- else if(a==="aiback"){const q=st.run&&!st.run.done;st.view=q?"quiz":"home";save();render();return}
+ else if(a==="aigo"){if(st.view!=="chat"&&st.view!=="chats")ui.aiPrev=st.view;if(ui.chat&&ui.chat.msgs.length){st.view="chat";save();render();window.scrollTo(0,0);aiScroll()}else aiOpen("Fach: "+st.set.fach);return}
+ else if(a==="aiback"){aiKeep();const pv=ui.aiPrev;st.view=pv&&pv!=="chat"&&pv!=="chats"?pv:"home";save();render();return}
+ else if(a==="aisave"){aiKeep();aiSave();return}
+ else if(a==="aineu"){const pv=ui.aiPrev;ui.chat=aiNew();render();return}
+ else if(a==="aichats"){aiKeep();ui.cv=null;ui.cdel="";st.view="chats";save();render();window.scrollTo(0,0);return}
+ else if(a==="aitochat"){st.view="chat";save();render();return}
+ else if(a==="aiopenc"){ui.cv=v;ui.cdel="";render();window.scrollTo(0,0);return}
+ else if(a==="aicont"){const x=(st.chats||[]).find(c=>c&&c.id===v&&!c.d);if(x){ui.chat={...aiNew(),msgs:x.m.map(m=>({role:m.r==="u"?"user":"model",text:m.x})),ctx:x.cx||"Fach: "+(x.f||st.set.fach),sid:x.id,sn:x.m.length};st.view="chat";save();render();aiScroll()}return}
+ else if(a==="aidel"){if(ui.cdel!==v){ui.cdel=v;render();return}ui.cdel="";ui.cv=null;st.chats=(st.chats||[]).map(x=>x&&x.id===v?{id:v,t:Date.now(),d:1}:x);if(ui.chat&&ui.chat.sid===v){ui.chat.sid="";ui.chat.sn=0}save();render();toast("Chat gelöscht");return}
  else if(a==="aiq"){aiOpen(aiQCtx(v),"Erkläre mir das kurz: Warum ist das die richtige Lösung?");return}
  else if(a==="aisend"){const t=v||(document.getElementById("aiin")||{}).value;aiSend(t);return}
  else if(a==="plx"){ui.plx=ui.plx===v?"":v}
